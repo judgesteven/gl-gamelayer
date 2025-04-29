@@ -358,7 +358,7 @@
                     <div class="mb-3">
                         <label for="refreshOffset" class="form-label">Refresh Offset (Optional)</label>
                         <div class="input-group">
-                            <input type="time" class="form-control" id="timeSelect" style="padding-left: 3.5rem; border-radius: 24px;">
+                            <input type="time" class="form-control" id="timeSelect" style="padding-left: 3.5rem; border-radius: 24px; background-color: rgba(255, 255, 255, 0.8); border: 2px solid rgba(0, 0, 0, 0.1);">
                             <style>
                                 #timeSelect {
                                     position: relative;
@@ -371,6 +371,15 @@
                                     transform: translateY(-50%);
                                     color: var(--text-secondary);
                                     pointer-events: none;
+                                }
+                                #timeSelect::-webkit-calendar-picker-indicator {
+                                    filter: invert(0.5) sepia(1) saturate(5) hue-rotate(175deg);
+                                }
+                                #timeSelect:focus {
+                                    outline: none;
+                                    border-color: var(--primary-color);
+                                    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+                                    background-color: white;
                                 }
                             </style>
                         </div>
