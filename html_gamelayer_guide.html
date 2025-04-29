@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameLayer Gamification Guide</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        h1 {
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            margin-top: 30px;
+            border-left: 4px solid #3498db;
+            padding-left: 10px;
+        }
+        .mechanics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .mechanic-card {
+            background-color: #f8f9fa;
+            border-left: 4px solid #3498db;
+            border-radius: 5px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .mechanic-card h3 {
+            margin-top: 0;
+            color: #3498db;
+        }
+        .step-container {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .step-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .step-box {
+            background-color: white;
+            border-radius: 5px;
+            padding: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .callout {
+            background-color: #e8f4fc;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to GameLayer's Gamification Guide!</h1>
+    
+    <p>We're excited to help you create a simple and fun gamification experience using GameLayer's dashboard. This guide will walk you through the basics, step by step. No need to worry about technical jargon—we've kept things simple. If you're after more technical details, you can always check out the API documentation for deeper insights.</p>
+    
+    <h2>Quick Overview of Gamification Mechanics</h2>
+    
+    <div class="mechanics-grid">
+        <div class="mechanic-card">
+            <h3>CHALLENGES</h3>
+            <p>The heart and soul of the experience. Guide users towards action and how they will be rewarded.</p>
+        </div>
+        
+        <div class="mechanic-card">
+            <h3>STREAKS</h3>
+            <p>Encourage users to return to your site daily by creating habitual use and embedding your service into daily routines.</p>
+        </div>
+        
+        <div class="mechanic-card">
+            <h3>EXPERIENCE POINTS</h3>
+            <p>Use these to help users level-up within the experience and to compete against other users.</p>
+        </div>
+        
+        <div class="mechanic-card">
+            <h3>CREDITS</h3>
+            <p>Can be earned for engaging with the experience and are used to claim the supported rewards.</p>
+        </div>
+        
+        <div class="mechanic-card">
+            <h3>LEVELS</h3>
+            <p>Provide a sense of progression within the system and tailor the content experience accordingly.</p>
+        </div>
+        
+        <div class="mechanic-card">
+            <h3>LEADERBOARDS</h3>
+            <p>Get your users competing against each other for the top rankings with periodic refreshes.</p>
+        </div>
+        
+        <div class="mechanic-card">
+            <h3>ACHIEVEMENTS</h3>
+            <p>Recognition for when users do something awesome within the experience.</p>
+        </div>
+        
+        <div class="mechanic-card">
+            <h3>PRIZES</h3>
+            <p>Motivation and incentive for users to continue engaging with the experience and spend their credits.</p>
+        </div>
+        
+        <div class="mechanic-card">
+            <h3>PRIZE DRAW</h3>
+            <p>Periodic draws for users to enter with the possibility of winning much bigger prizes.</p>
+        </div>
+        
+        <div class="mechanic-card">
+            <h3>MYSTERY BOX</h3>
+            <p>Instant wins with an element of risk... the mystery box may not award a prize this time.</p>
+        </div>
+        
+        <div class="mechanic-card">
+            <h3>QUIZZES</h3>
+            <p>Build simple quiz experiences for fun or education and engage users longer with your content.</p>
+        </div>
+    </div>
+    
+    <h2>Our Demo: Building a Player-Friendly Onboarding Experience</h2>
+    
+    <p>Imagine you want to create an engaging onboarding for new users (who we'll call "players" from here on out). In this demo, we'll guide players through watching three product videos in a specific order to help them better understand your offerings.</p>
+    
+    <div class="step-container">
+        <h3>Step 1: Tracking Player Actions with Events</h3>
+        
+        <p>The first thing we need is a way to track what our players are up to—specifically, when they watch one of the onboarding videos. For that, we need to set up an event.</p>
+        
+        <p>This event will be the foundation for three different missions—one for each video. Each mission is completed when the event is triggered (and recorded by GameLayer through the API).</p>
+        
+        <div class="step-grid">
+            <div class="step-box">
+                <h4>1. Navigate to the Events page</h4>
+                <p>Find it in the left-hand menu</p>
+            </div>
+            
+            <div class="step-box">
+                <h4>2. Click 'create' new Event</h4>
+            </div>
+            
+            <div class="step-box">
+                <h4>3. Expand the Event</h4>
+                <p>Complete all the required fields</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="step-container">
+        <h3>Step 2: Structuring Missions in the Right Order</h3>
+        
+        <p>We want to make sure our players watch the videos in the right order. So, we'll set up requirements that players need to finish Mission 1 (watching Video 1) before they can move on to Mission 2 (watching Video 2), and so on. It's a simple way to keep them on track!</p>
+        
+        <div class="step-grid">
+            <div class="step-box">
+                <h4>1. Navigate to the Missions page</h4>
+                <p>Find it in the left-hand menu</p>
+            </div>
+            
+            <div class="step-box">
+                <h4>2. Click 'create' new Mission</h4>
+            </div>
+            
+            <div class="step-box">
+                <h4>3. Expand the Mission</h4>
+                <p>Complete all the required fields</p>
+            </div>
+            
+            <div class="step-box">
+                <h4>4. Set a unique identifier</h4>
+                <p>This is used purely within GameLayer to reference the Mission</p>
+            </div>
+            
+            <div class="step-box">
+                <h4>5. Give the Mission a Name</h4>
+                <p>This is shown to players in the front-end</p>
+            </div>
+            
+            <div class="step-box">
+                <h4>6. Add description and image (optional)</h4>
+                <p>These are displayed to players in the front-end</p>
+            </div>
+            
+            <div class="step-box">
+                <h4>7. Set active dates</h4>
+                <p>Define when the Mission is active and if it should refresh periodically</p>
+            </div>
+            
+            <div class="step-box">
+                <h4>8. Set the objective</h4>
+                <p>Use the Event created earlier as the objective driving this Mission</p>
+            </div>
+            
+            <div class="step-box">
+                <h4>9-10. Set rewards</h4>
+                <p>Award the user points, credits and achievement steps upon completion</p>
+            </div>
+        </div>
+        
+        <div class="callout">
+            <p><strong>REQUIREMENTS</strong> - Used across different mechanics to structure content and personalize the player experience... missions, levels, achievements, category and tags can all be used as requirements</p>
+            <p><strong>OBJECTIVES</strong> - All missions require one or many objectives to be completed... These objectives take the form of events and can be single or multiple. Internal quizzes and surveys can also drive missions.</p>
+        </div>
+    </div>
+    
+    <div class="step-container">
+        <h3>Step 3: Adding Achievements for Motivation</h3>
+        
+        <p>Time to spice things up! Let's introduce an achievement called "Video Master." This achievement requires players to complete all three missions. For every mission they finish, they'll unlock one step toward this achievement.</p>
+        
+        <p>After completing the first mission, the player will unlock the achievement, and with each following mission, they'll make more progress. You can even display this in your client app to encourage players with positive feedback. Everyone loves a good badge, right?</p>
+        
+        <div class="step-grid">
+            <div class="step-box">
+                <h4>1. Navigate to the Achievements page</h4>
+                <p>Find it in the left-hand menu</p>
+            </div>
+            
+            <div class="step-box">
+                <h4>2. Click 'create' new Achievement</h4>
+            </div>
+            
+            <div class="step-box">
+                <h4>3. Expand the Achievement</h4>
+                <p>Complete all the required fields</p>
+            </div>
+            
+            <div class="step-box">
+                <h4>4. Set identification details</h4>
+                <p>Give your Achievement a unique id, name, description and image</p>
+            </div>
+            
+            <div class="step-box">
+                <h4>5. Define achievement steps</h4>
+                <p>Set how many steps are needed to fully grant the achievement badge</p>
+            </div>
+            
+            <div class="step-box">
+                <h4>6. Link to missions</h4>
+                <p>Add the Achievement and the number of steps granted to each Mission that contributes towards it</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="step-container">
+        <h3>Step 4: Connecting Missions to Achievements</h3>
+        
+        <p>It's super easy to connect mission completions to achievements. Just head over to the 'rewards' section in the dashboard and use the 'achievement-picker' to link missions to the achievements. You can even adjust how many steps each mission contributes toward an achievement—perfect for giving harder missions more weight!</p>
+        
+        <div class="callout">
+            <p><strong>POSITIVE FEEDBACK LOOP</strong> - We want players to know when they have done something positive within the systems and we use this to motivate and direct their continued engagement with the service.</p>
+        </div>
+    </div>
+    
+    <div class="step-container">
+        <h3>Step 5: Levels and Levelling Up</h3>
+        
+        <p>Let's take things a step further by adding levels. Players earn experience points by completing missions, achievements, and other actions. In our demo, each mission completion gives players 10 points.</p>
+        
+        <div class="step-grid">
+            <div class="step-box">
+                <h4>1. Navigate to the Levels page</h4>
+                <p>Find it in the left-hand menu</p>
+            </div>
+            
+            <div class="step-box">
+                <h4>2. Click 'create' new Level</h4>
+            </div>
+            
+            <div class="step-box">
+                <h4>3. Expand the Level</h4>
+                <p>Complete all the required fields</p>
+            </div>
+            
+            <div class="step-box">
+                <h4>4. Set identification details</h4>
+                <p>Give your Level a unique id, name, description and image</p>
+            </div>
+            
+            <div class="step-box">
+                <h4>5. Set starting level</h4>
+                <p>Note, the ordinal for Levels starts at 0 and all players will start here as soon as they are active</p>
+            </div>
+            
+            <div class="step-box">
+                <h4>6. Set level progression</h4>
+                <p>Note Level Two has ordinal of 1 and requires 50 points (objective) for the player to reach</p>
+            </div>
+        </div>
+        
+        <div class="callout">
+            <p><strong>EXPERIENCE POINTS</strong> - As in video games, the more players engage with a service, the more expertise they gain... We measure that in points [XP] and use also, e.g. in player rankings and leaderboards</p>
+        </div>
+    </div>
+    
+    <div class="step-container">
+        <h3>Bonus: Rewarding Players with Credits</h3>
+        
+        <p>When creating our "Video Master" achievement, we also set it to reward players with 10 credits once it's unlocked. Players can use these credits to claim rewards, like a prize from our simple prize management system.</p>
+        
+        <p>For our demo, we've set up a prize that costs exactly 10 credits and can only be redeemed once per player. Easy, right?</p>
+        
+        <div class="step-grid">
+            <div class="step-box">
+                <h4>1. Navigate to the Prizes page</h4>
+                <p>Find it in the left-hand menu</p>
+            </div>
+            
+            <div class="step-box">
+                <h4>2. Click 'create' new Prize</h4>
+            </div>
+            
+            <div class="step-box">
+                <h4>3. Expand the Prize</h4>
+                <p>Complete all the required fields</p>
+            </div>
+            
+            <div class="step-box">
+                <h4>4. Set identification details</h4>
+                <p>Give your Prize a unique id, name, description and image</p>
+            </div>
+            
+            <div class="step-box">
+                <h4>5. Set prize requirements</h4>
+                <p>Define how many credits to redeem a prize, how many prizes a player can redeem, and available amount</p>
+            </div>
+            
+            <div class="step-box">
+                <h4>6. Set availability period</h4>
+                <p>Prizes require a period during which they are available and a refresh period for re-stocking</p>
+            </div>
+        </div>
+    </div>
+    
+    <h2>Advanced Game Design</h2>
+    
+    <p>We've created two levels: Level Uno and Level Dos. Every player starts at Level Uno and can level up to Level Dos after earning 50 points. Here's the twist: we've set our prize to only be available for players who have reached Level Dos or higher. Since completing all three missions only gives players 30 points, they'll need to find other ways to level up!</p>
+    
+    <p>This is your chance to continue building the gamification experience beyond onboarding, engaging players in different ways.</p>
+    
+    <div class="callout">
+        <h3>And that's a wrap for our demo!</h3>
+        <p>Of course, we've only scratched the surface. We haven't touched on leaderboards, teams, or more advanced reward mechanics. But now you've got a solid foundation to build on.</p>
+        <p>Your gamification structure is starting to take shape, and soon, you'll be creating even more exciting experiences for your players!</p>
+    </div>
+</body>
+</html>

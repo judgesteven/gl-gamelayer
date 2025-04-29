@@ -1,0 +1,144 @@
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+const fetch = require('node-fetch');
+const multer = require('multer');
+const fs = require('fs');
+require('dotenv').config();
+
+const app = express();
+const port = process.env.PORT || 3000;
+
+// API Configuration
+const API_KEY = process.env.GAMELAYER_API_KEY;
+const ACCOUNT_ID = process.env.GAMELAYER_ACCOUNT_ID;
+const API_BASE_URL = process.env.GAMELAYER_API_BASE_URL;
+
+// Configure multer for image upload
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        const uploadDir = 'public/uploads';
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        cb(null, uploadDir);
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({ 
+    storage: storage,
+    limits: {
+        fileSize: 5 * 1024 * 1024 // 5MB limit
+    },
+    fileFilter: function (req, file, cb) {
+        if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+            return cb(new Error('Only image files are allowed!'), false);
+        }
+        cb(null, true);
+    }
+});
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use(express.static('public'));
+app.use('/uploads', express.static('public/uploads'));
+
+// API endpoint to create a player
+app.post('/api/create-player', upload.single('avatar'), async (req, res) => {
+    try {
+        // Parse the JSON data from the form
+        const playerData = JSON.parse(req.body.data);
+        
+        // Validate required fields
+        const { player, name, account } = playerData;
+        if (!player || !name || !account) {
+            return res.status(400).json({
+                error: "Missing required fields: player, name, and account are required",
+                errorCode: 400
+            });
+        }
+
+        // Validate refresh offset format if provided
+        if (playerData.refreshOffset) {
+            const offsetRegex = /^UTC[+-]([0-1][0-9]|2[0-4]):[0-5][0-9]$/;
+            if (!offsetRegex.test(playerData.refreshOffset)) {
+                return res.status(400).json({
+                    error: "Invalid refresh offset format. Must be in format UTC±HH:MM",
+                    errorCode: 400
+                });
+            }
+        }
+
+        // Create the request body with the image URL if an image was uploaded
+        const requestBody = {
+            player: player,
+            name: name,
+            account: ACCOUNT_ID,
+            refreshOffset: playerData.refreshOffset || undefined
+        };
+
+        // Add image URL if an image was uploaded
+        if (req.file) {
+            // Get the base URL from the request
+            const baseUrl = `${req.protocol}://${req.get('host')}`;
+            requestBody.imgUrl = `${baseUrl}/uploads/${req.file.filename}`;
+        }
+
+        const headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'api-key': API_KEY
+        };
+
+        console.log('Sending request to GameLayer:', {
+            url: `${API_BASE_URL}/players`,
+            method: 'POST',
+            headers: headers,
+            body: requestBody
+        });
+
+        const response = await fetch(`${API_BASE_URL}/players`, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(requestBody)
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            console.error('GameLayer API error:', {
+                status: response.status,
+                statusText: response.statusText,
+                error: data
+            });
+            return res.status(response.status).json(data);
+        }
+
+        res.status(response.status).json(data);
+    } catch (error) {
+        console.error('Server error:', error);
+        res.status(500).json({ 
+            error: error.message,
+            errorCode: 500
+        });
+    }
+});
+
+// Serve the main page
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// For Vercel deployment
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(port, () => {
+        console.log(`Server running at http://localhost:${port}`);
+    });
+}
+
+module.exports = app; 

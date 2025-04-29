@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameLayer Player Creation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #007AFF;
+            --secondary-color: #1D1D1F;
+            --accent-color: #FF2D55;
+            --light-bg: #F5F5F7;
+            --dark-bg: #1D1D1F;
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --text-primary: #1D1D1F;
+            --text-secondary: #86868B;
+            --border-radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--light-bg);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .card {
+            border: none;
+            border-radius: var(--border-radius);
+            background-color: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
+        }
+
+        .card-header {
+            background: none;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+        }
+
+        .card-header h1 {
+            color: var(--text-primary);
+            font-weight: 600;
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        .form-control {
+            border-radius: var(--border-radius);
+            padding: 0.8rem 1rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            background-color: rgba(255, 255, 255, 0.8);
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .btn-primary:hover {
+            background-color: #0066CC;
+            transform: translateY(-1px);
+        }
+
+        .response-area {
+            background-color: rgba(0, 0, 0, 0.05);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-top: 1rem;
+            font-family: monospace;
+            white-space: pre-wrap;
+            display: none;
+        }
+
+        .response-area.success {
+            background-color: rgba(52, 199, 89, 0.1);
+            border: 1px solid rgba(52, 199, 89, 0.2);
+        }
+
+        .response-area.error {
+            background-color: rgba(255, 59, 48, 0.1);
+            border: 1px solid rgba(255, 59, 48, 0.2);
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-text {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h1>Create New Player</h1>
+            </div>
+            <div class="card-body">
+                <form id="playerForm">
+                    <div class="mb-3">
+                        <label for="playerId" class="form-label">Player ID</label>
+                        <input type="text" class="form-control" id="playerId" required>
+                        <div class="form-text">A unique identifier for the player (e.g., player-123)</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="playerName" class="form-label">Player Name</label>
+                        <input type="text" class="form-control" id="playerName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="playerEmail" class="form-label">Email (Optional)</label>
+                        <input type="email" class="form-control" id="playerEmail">
+                    </div>
+                    <div class="mb-3">
+                        <label for="refreshOffset" class="form-label">Refresh Offset (Optional)</label>
+                        <input type="text" class="form-control" id="refreshOffset" placeholder="UTC+02:00">
+                        <div class="form-text">Valid range: UTC-12:00 to UTC+14:00</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Player</button>
+                </form>
+                <div id="response" class="response-area"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_KEY = '9567d1ba99b22b84ee2c27cadb56fde7';
+        const ACCOUNT_ID = 'ai-test';
+        const API_URL = 'https://api.gamelayer.co/api/v0';
+
+        document.getElementById('playerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const responseArea = document.getElementById('response');
+            responseArea.style.display = 'block';
+            responseArea.className = 'response-area';
+            responseArea.textContent = 'Creating player...';
+
+            const playerData = {
+                id: document.getElementById('playerId').value,
+                name: document.getElementById('playerName').value,
+                email: document.getElementById('playerEmail').value || undefined,
+                refreshOffset: document.getElementById('refreshOffset').value || undefined,
+                account: ACCOUNT_ID
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/players`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'api-key': API_KEY
+                    },
+                    body: JSON.stringify(playerData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    responseArea.className = 'response-area success';
+                    responseArea.textContent = JSON.stringify(data, null, 2);
+                } else {
+                    responseArea.className = 'response-area error';
+                    responseArea.textContent = `Error: ${data.error}\nCode: ${data.errorCode}`;
+                }
+            } catch (error) {
+                responseArea.className = 'response-area error';
+                responseArea.textContent = `Error: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html> 
