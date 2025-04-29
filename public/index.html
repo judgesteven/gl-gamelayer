@@ -38,6 +38,7 @@
         .container {
             max-width: 440px;
             width: 100%;
+            margin: 0 auto;
         }
 
         .card {
@@ -48,6 +49,7 @@
             -webkit-backdrop-filter: blur(20px);
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             transition: var(--transition);
+            width: 100%;
         }
 
         .card:hover {
@@ -302,6 +304,11 @@
         }
 
         @media (max-width: 576px) {
+            .container {
+                max-width: 100%;
+                padding: 0 1rem;
+            }
+            
             .card-header {
                 padding: 1.25rem;
             }
