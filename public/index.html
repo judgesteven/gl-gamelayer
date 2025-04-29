@@ -117,6 +117,7 @@
         .form-text {
             color: var(--text-secondary);
             font-size: 0.9rem;
+            margin-top: 0.25rem;
         }
 
         .avatar-section {
@@ -167,14 +168,16 @@
         .avatar-upload .btn {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            border-radius: var(--border-radius);
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
             background-color: var(--primary-color);
             color: white;
             border: none;
             cursor: pointer;
             transition: var(--transition);
+            font-size: 1.5rem;
         }
 
         .avatar-upload .btn:hover {
@@ -184,12 +187,6 @@
 
         .avatar-upload .btn i {
             font-size: 1.2rem;
-        }
-
-        .avatar-upload .file-name {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            margin-top: 0.5rem;
         }
     </style>
 </head>
@@ -210,11 +207,9 @@
                         </div>
                         <div class="avatar-upload">
                             <label for="avatarInput" class="btn">
-                                <i class="bi bi-upload"></i>
-                                Choose Avatar
+                                <i class="bi bi-plus"></i>
                             </label>
                             <input type="file" id="avatarInput" accept="image/*">
-                            <div class="file-name" id="fileName"></div>
                         </div>
                     </div>
                     <div class="mb-3">
@@ -225,11 +220,12 @@
                     <div class="mb-3">
                         <label for="playerName" class="form-label">Player Name</label>
                         <input type="text" class="form-control" id="playerName" required>
+                        <div class="form-text">The display name for the player</div>
                     </div>
                     <div class="mb-3">
                         <label for="refreshOffset" class="form-label">Refresh Offset (Optional)</label>
                         <input type="text" class="form-control" id="refreshOffset" placeholder="UTC+02:00">
-                        <div class="form-text">Valid range: UTC-12:00 to UTC+14:00</div>
+                        <div class="form-text">Specifies when daily rewards refresh (e.g., UTC+02:00 for 2 AM)</div>
                     </div>
                     <button type="submit" class="btn btn-primary">Create Player</button>
                 </form>
@@ -251,7 +247,6 @@
         // Handle avatar upload
         const avatarInput = document.getElementById('avatarInput');
         const avatarPreview = document.getElementById('avatarPreview');
-        const fileName = document.getElementById('fileName');
 
         avatarInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -268,9 +263,6 @@
                     return;
                 }
 
-                // Show file name
-                fileName.textContent = file.name;
-
                 // Preview image
                 const reader = new FileReader();
                 reader.onload = function(e) {
@@ -283,11 +275,6 @@
         document.getElementById('playerForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const responseArea = document.getElementById('response');
-            responseArea.style.display = 'block';
-            responseArea.className = 'response-area';
-            responseArea.textContent = 'Creating player...';
-
             const playerId = document.getElementById('playerId').value;
             const playerName = document.getElementById('playerName').value;
             const refreshOffset = document.getElementById('refreshOffset').value;
@@ -295,15 +282,13 @@
 
             // Validate required fields
             if (!playerId || !playerName) {
-                responseArea.className = 'response-area error';
-                responseArea.textContent = 'Error: Player ID and Name are required';
+                alert('Player ID and Name are required');
                 return;
             }
 
             // Validate refresh offset format
             if (refreshOffset && !validateRefreshOffset(refreshOffset)) {
-                responseArea.className = 'response-area error';
-                responseArea.textContent = 'Error: Invalid refresh offset format. Must be in format UTC±HH:MM';
+                alert('Invalid refresh offset format. Must be in format UTC±HH:MM');
                 return;
             }
 
@@ -325,11 +310,6 @@
             }
 
             try {
-                console.log('Sending form data:', {
-                    playerData: playerData,
-                    hasAvatar: !!avatarFile
-                });
-
                 const response = await fetch('/api/create-player', {
                     method: 'POST',
                     body: formData
@@ -338,16 +318,21 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    responseArea.className = 'response-area success';
-                    responseArea.textContent = JSON.stringify(data, null, 2);
+                    alert('Player created successfully!');
+                    // Reset form
+                    document.getElementById('playerForm').reset();
+                    avatarPreview.innerHTML = `
+                        <div class="placeholder">
+                            <i class="bi bi-person-circle"></i>
+                            <p>No avatar selected</p>
+                        </div>
+                    `;
                 } else {
-                    responseArea.className = 'response-area error';
-                    responseArea.textContent = `Error: ${data.error}\nCode: ${data.errorCode}`;
+                    alert(`Error: ${data.error}`);
                 }
             } catch (error) {
                 console.error('Error:', error);
-                responseArea.className = 'response-area error';
-                responseArea.textContent = `Error: ${error.message}`;
+                alert('Error creating player. Please try again.');
             }
         });
     </script>
