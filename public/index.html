@@ -69,12 +69,13 @@
         }
 
         .form-control {
-            border-radius: var(--border-radius);
-            padding: 1rem 1.25rem;
+            border-radius: 24px;
+            padding: 0.75rem 1.25rem;
             border: 2px solid rgba(0, 0, 0, 0.1);
             background-color: rgba(255, 255, 255, 0.8);
             transition: var(--transition);
             font-size: 1rem;
+            height: auto;
         }
 
         .form-control:focus {
@@ -86,8 +87,8 @@
         .btn-primary {
             background-color: var(--primary-color);
             border: none;
-            padding: 1rem 2rem;
-            border-radius: var(--border-radius);
+            padding: 0.75rem 2rem;
+            border-radius: 24px;
             font-weight: 600;
             transition: var(--transition);
             font-size: 1rem;
@@ -120,8 +121,8 @@
         }
 
         .avatar-preview {
-            width: 120px;
-            height: 120px;
+            width: 180px;
+            height: 180px;
             border-radius: 50%;
             background-color: rgba(0, 0, 0, 0.05);
             margin: 0 auto 1rem;
@@ -257,6 +258,22 @@
     <script>
         const ACCOUNT_ID = 'ai-test';
 
+        // Random profile images
+        const profileImages = [
+            'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix',
+            'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka',
+            'https://api.dicebear.com/7.x/avataaars/svg?seed=Bob',
+            'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
+            'https://api.dicebear.com/7.x/avataaars/svg?seed=John'
+        ];
+
+        // Set random profile image on load
+        window.addEventListener('load', function() {
+            const randomImage = profileImages[Math.floor(Math.random() * profileImages.length)];
+            const avatarPreview = document.getElementById('avatarPreview');
+            avatarPreview.innerHTML = `<img src="${randomImage}" alt="Default avatar">`;
+        });
+
         // Validate refresh offset format
         function validateRefreshOffset(offset) {
             if (!offset) return true;
@@ -341,12 +358,9 @@
                     alert('Player created successfully!');
                     // Reset form
                     document.getElementById('playerForm').reset();
-                    avatarPreview.innerHTML = `
-                        <div class="placeholder">
-                            <i class="bi bi-person-circle"></i>
-                            <p>No avatar selected</p>
-                        </div>
-                    `;
+                    // Set new random profile image
+                    const randomImage = profileImages[Math.floor(Math.random() * profileImages.length)];
+                    avatarPreview.innerHTML = `<img src="${randomImage}" alt="Default avatar">`;
                 } else {
                     alert(`Error: ${data.error}`);
                 }
