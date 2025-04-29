@@ -54,6 +54,7 @@
             background: none;
             border-bottom: 1px solid rgba(0, 0, 0, 0.1);
             padding: 2rem;
+            text-align: center;
         }
 
         .card-header h1 {
@@ -171,8 +172,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 40px;
-            height: 40px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
             background-color: var(--primary-color);
             color: white;
@@ -181,16 +182,35 @@
             transition: var(--transition);
             font-size: 1.5rem;
             box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+            position: relative;
+        }
+
+        .avatar-upload .btn::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 2px;
+            background-color: white;
+            border-radius: 1px;
+        }
+
+        .avatar-upload .btn::after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 20px;
+            background-color: white;
+            border-radius: 1px;
         }
 
         .avatar-upload .btn:hover {
             background-color: var(--primary-hover);
-            transform: translateY(-2px);
+            transform: translateY(-2px) rotate(90deg);
             box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3);
         }
 
         .avatar-upload .btn i {
-            font-size: 1.2rem;
+            display: none;
         }
 
         .mb-3 {
@@ -247,7 +267,7 @@
                     <div class="mb-3">
                         <label for="refreshOffset" class="form-label">Refresh Offset (Optional)</label>
                         <input type="text" class="form-control" id="refreshOffset" placeholder="UTC+02:00">
-                        <div class="form-text">Specifies when daily rewards refresh (e.g., UTC+02:00 for 2 AM)</div>
+                        <div class="form-text">Specifies when daily missions refresh (e.g., UTC+02:00 for 2 AM)</div>
                     </div>
                     <button type="submit" class="btn btn-primary">Create Player</button>
                 </form>
