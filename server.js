@@ -15,7 +15,7 @@ const ACCOUNT_ID = process.env.GAMELAYER_ACCOUNT_ID || 'ai-test';
 const API_BASE_URL = process.env.GAMELAYER_API_BASE_URL || 'https://api.gamelayer.co/api/v0';
 
 // Configure multer for image upload
-const storage = multer.memoryStorage(); // Use memory storage instead of disk storage
+const storage = multer.memoryStorage();
 
 const upload = multer({ 
     storage: storage,
@@ -39,6 +39,16 @@ app.use('/uploads', express.static('public/uploads'));
 // API endpoint to create a player
 app.post('/api/create-player', upload.single('avatar'), async (req, res) => {
     try {
+        console.log('Received request:', {
+            body: req.body,
+            file: req.file ? {
+                fieldname: req.file.fieldname,
+                originalname: req.file.originalname,
+                mimetype: req.file.mimetype,
+                size: req.file.size
+            } : null
+        });
+
         // Parse the JSON data from the form
         const playerData = JSON.parse(req.body.data);
         

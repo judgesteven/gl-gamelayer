@@ -335,6 +335,11 @@
             }
 
             try {
+                console.log('Sending form data:', {
+                    playerData: playerData,
+                    hasAvatar: !!avatarFile
+                });
+
                 const response = await fetch('/api/create-player', {
                     method: 'POST',
                     body: formData
@@ -350,6 +355,7 @@
                     responseArea.textContent = `Error: ${data.error}\nCode: ${data.errorCode}`;
                 }
             } catch (error) {
+                console.error('Error:', error);
                 responseArea.className = 'response-area error';
                 responseArea.textContent = `Error: ${error.message}`;
             }
