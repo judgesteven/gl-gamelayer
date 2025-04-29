@@ -129,11 +129,18 @@
             overflow: hidden;
             cursor: pointer;
             transition: var(--transition);
+            border: 2px dashed rgba(0, 0, 0, 0.1);
         }
 
         .avatar-section:hover {
             transform: scale(1.02);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary-color);
+        }
+
+        .avatar-section.dragover {
+            border-color: var(--primary-color);
+            background-color: rgba(0, 122, 255, 0.1);
         }
 
         .avatar-section input[type="file"] {
@@ -191,6 +198,65 @@
         .avatar-section:hover .upload-hint {
             opacity: 1;
         }
+
+        .avatar-section .upload-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background-color: rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .avatar-section .bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0;
+            transition: width 0.3s ease;
+        }
+
+        .avatar-section.uploading .upload-progress {
+            display: block;
+        }
+
+        .avatar-section .upload-status {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: var(--transition);
+            pointer-events: none;
+        }
+
+        .avatar-section.uploading .upload-status {
+            opacity: 1;
+        }
+
+        .avatar-section .error-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 59, 48, 0.9);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: var(--transition);
+            pointer-events: none;
+        }
+
+        .avatar-section.error .error-message {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -208,6 +274,11 @@
                             <p>Click to upload avatar</p>
                         </div>
                         <div class="upload-hint">Drag & drop or click to upload</div>
+                        <div class="upload-progress">
+                            <div class="bar"></div>
+                        </div>
+                        <div class="upload-status">Uploading...</div>
+                        <div class="error-message">Error uploading image</div>
                     </div>
                     <div class="mb-3">
                         <label for="playerId" class="form-label">Player ID</label>
@@ -243,23 +314,28 @@
         // Handle avatar upload
         const avatarSection = document.getElementById('avatarSection');
         const avatarInput = document.getElementById('avatarInput');
+        const progressBar = avatarSection.querySelector('.upload-progress .bar');
+        const uploadStatus = avatarSection.querySelector('.upload-status');
+        const errorMessage = avatarSection.querySelector('.error-message');
 
         // Handle drag and drop
         avatarSection.addEventListener('dragover', (e) => {
             e.preventDefault();
-            avatarSection.style.border = '2px dashed var(--primary-color)';
+            avatarSection.classList.add('dragover');
         });
 
         avatarSection.addEventListener('dragleave', () => {
-            avatarSection.style.border = 'none';
+            avatarSection.classList.remove('dragover');
         });
 
         avatarSection.addEventListener('drop', (e) => {
             e.preventDefault();
-            avatarSection.style.border = 'none';
+            avatarSection.classList.remove('dragover');
             const file = e.dataTransfer.files[0];
             if (file && file.type.startsWith('image/')) {
                 handleImageUpload(file);
+            } else {
+                showError('Please upload an image file');
             }
         });
 
@@ -271,13 +347,52 @@
             }
         });
 
+        function showError(message) {
+            errorMessage.textContent = message;
+            avatarSection.classList.add('error');
+            setTimeout(() => {
+                avatarSection.classList.remove('error');
+            }, 3000);
+        }
+
         function handleImageUpload(file) {
+            // Validate file size (5MB limit)
+            if (file.size > 5 * 1024 * 1024) {
+                showError('File size must be less than 5MB');
+                return;
+            }
+
+            // Show upload progress
+            avatarSection.classList.add('uploading');
+            progressBar.style.width = '0%';
+            uploadStatus.textContent = 'Uploading...';
+
+            // Simulate upload progress
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 5;
+                progressBar.style.width = `${progress}%`;
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    // Show success state
+                    uploadStatus.textContent = 'Upload complete!';
+                    setTimeout(() => {
+                        avatarSection.classList.remove('uploading');
+                    }, 1000);
+                }
+            }, 100);
+
             const reader = new FileReader();
             reader.onload = (e) => {
                 avatarSection.innerHTML = `
                     <input type="file" id="avatarInput" accept="image/*">
                     <img src="${e.target.result}" alt="Player avatar">
                     <div class="upload-hint">Click to change</div>
+                    <div class="upload-progress">
+                        <div class="bar"></div>
+                    </div>
+                    <div class="upload-status">Uploading...</div>
+                    <div class="error-message">Error uploading image</div>
                 `;
                 // Reattach event listeners
                 document.getElementById('avatarInput').addEventListener('change', (e) => {
@@ -286,6 +401,10 @@
                         handleImageUpload(file);
                     }
                 });
+            };
+            reader.onerror = () => {
+                showError('Error reading file');
+                avatarSection.classList.remove('uploading');
             };
             reader.readAsDataURL(file);
         }
