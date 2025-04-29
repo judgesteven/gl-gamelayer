@@ -357,7 +357,13 @@
                     </div>
                     <div class="mb-3">
                         <label for="refreshOffset" class="form-label">Refresh Offset (Optional)</label>
-                        <input type="text" class="form-control" id="refreshOffset" placeholder="UTC+02:00">
+                        <div class="input-group">
+                            <select class="form-select" id="timezoneSelect" style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                                <option value="UTC">UTC</option>
+                            </select>
+                            <input type="time" class="form-control" id="timeSelect" style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                        </div>
+                        <input type="hidden" id="refreshOffset" name="refreshOffset">
                         <div class="form-text">Specifies when daily missions refresh (e.g., UTC+02:00 for 2 AM)</div>
                     </div>
                     <button type="submit" class="btn btn-primary">Create Player</button>
@@ -574,6 +580,41 @@
                 alert('Error creating player. Please try again.');
             }
         });
+
+        // Add timezone options
+        const timezoneSelect = document.getElementById('timezoneSelect');
+        const timeSelect = document.getElementById('timeSelect');
+        const refreshOffsetInput = document.getElementById('refreshOffset');
+
+        // Generate timezone options from UTC-12:00 to UTC+14:00
+        for (let i = -12; i <= 14; i++) {
+            const sign = i >= 0 ? '+' : '-';
+            const absValue = Math.abs(i);
+            const value = `UTC${sign}${absValue.toString().padStart(2, '0')}:00`;
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = value;
+            timezoneSelect.appendChild(option);
+        }
+
+        // Update hidden input when time or timezone changes
+        function updateRefreshOffset() {
+            const timezone = timezoneSelect.value;
+            const time = timeSelect.value;
+            if (time) {
+                const [hours, minutes] = time.split(':');
+                refreshOffsetInput.value = `${timezone}${hours}:${minutes}`;
+            } else {
+                refreshOffsetInput.value = '';
+            }
+        }
+
+        timezoneSelect.addEventListener('change', updateRefreshOffset);
+        timeSelect.addEventListener('change', updateRefreshOffset);
+
+        // Set default time to 00:00
+        timeSelect.value = '00:00';
+        updateRefreshOffset();
     </script>
 </body>
 </html> 
