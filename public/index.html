@@ -358,8 +358,21 @@
                     <div class="mb-3">
                         <label for="refreshOffset" class="form-label">Refresh Offset (Optional)</label>
                         <div class="input-group">
-                            <span class="input-group-text">UTC+</span>
-                            <input type="time" class="form-control" id="timeSelect">
+                            <input type="time" class="form-control" id="timeSelect" style="padding-left: 3.5rem;">
+                            <style>
+                                #timeSelect {
+                                    position: relative;
+                                }
+                                #timeSelect::before {
+                                    content: 'UTC+';
+                                    position: absolute;
+                                    left: 1rem;
+                                    top: 50%;
+                                    transform: translateY(-50%);
+                                    color: var(--text-secondary);
+                                    pointer-events: none;
+                                }
+                            </style>
                         </div>
                         <input type="hidden" id="refreshOffset" name="refreshOffset">
                         <div class="form-text">Specifies when daily missions refresh in UTC time (e.g., 02:00 for 2 AM UTC)</div>
