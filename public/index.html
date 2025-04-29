@@ -372,14 +372,26 @@
                                     color: var(--text-secondary);
                                     pointer-events: none;
                                 }
-                                #timeSelect::-webkit-calendar-picker-indicator {
-                                    filter: invert(0.5) sepia(1) saturate(5) hue-rotate(175deg);
-                                }
                                 #timeSelect:focus {
                                     outline: none;
                                     border-color: var(--primary-color);
                                     box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
                                     background-color: white;
+                                }
+                                /* Style the time selector popup */
+                                #timeSelect::-webkit-calendar-picker-indicator {
+                                    cursor: pointer;
+                                }
+                                #timeSelect::-webkit-datetime-edit {
+                                    color: var(--text-primary);
+                                }
+                                /* Style the time selector popup */
+                                #timeSelect::-webkit-calendar-picker-indicator:hover {
+                                    background-color: rgba(99, 102, 241, 0.1);
+                                }
+                                /* Style the time selector popup */
+                                #timeSelect::-webkit-calendar-picker-indicator:focus {
+                                    background-color: rgba(99, 102, 241, 0.2);
                                 }
                             </style>
                         </div>
