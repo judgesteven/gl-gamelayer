@@ -356,47 +356,9 @@
                         <div class="form-text">The display name for the player</div>
                     </div>
                     <div class="mb-3">
-                        <label for="refreshOffset" class="form-label">Refresh Offset (Optional)</label>
-                        <div class="input-group">
-                            <input type="time" class="form-control" id="timeSelect" style="padding-left: 3.5rem; border-radius: 24px; background-color: rgba(255, 255, 255, 0.8); border: 2px solid rgba(0, 0, 0, 0.1);">
-                            <style>
-                                #timeSelect {
-                                    position: relative;
-                                }
-                                #timeSelect::before {
-                                    content: 'UTC+';
-                                    position: absolute;
-                                    left: 1rem;
-                                    top: 50%;
-                                    transform: translateY(-50%);
-                                    color: var(--text-secondary);
-                                    pointer-events: none;
-                                }
-                                #timeSelect:focus {
-                                    outline: none;
-                                    border-color: var(--primary-color);
-                                    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
-                                    background-color: white;
-                                }
-                                /* Style the time selector popup */
-                                #timeSelect::-webkit-calendar-picker-indicator {
-                                    cursor: pointer;
-                                }
-                                #timeSelect::-webkit-datetime-edit {
-                                    color: var(--text-primary);
-                                }
-                                /* Style the time selector popup */
-                                #timeSelect::-webkit-calendar-picker-indicator:hover {
-                                    background-color: rgba(99, 102, 241, 0.1);
-                                }
-                                /* Style the time selector popup */
-                                #timeSelect::-webkit-calendar-picker-indicator:focus {
-                                    background-color: rgba(99, 102, 241, 0.2);
-                                }
-                            </style>
-                        </div>
-                        <input type="hidden" id="refreshOffset" name="refreshOffset">
-                        <div class="form-text">Specifies when daily missions refresh in UTC time (e.g., 02:00 for 2 AM UTC)</div>
+                        <label for="playerEmail" class="form-label">Email Address (Optional)</label>
+                        <input type="email" class="form-control" id="playerEmail">
+                        <div class="form-text">Player's contact email address</div>
                     </div>
                     <button type="submit" class="btn btn-primary">Create Player</button>
                 </form>
@@ -552,19 +514,13 @@
             
             const playerId = document.getElementById('playerId').value;
             const playerName = document.getElementById('playerName').value;
-            const refreshOffset = document.getElementById('refreshOffset').value;
+            const playerEmail = document.getElementById('playerEmail').value;
             const avatarFile = document.getElementById('avatarInput').files[0];
             const currentImageUrl = avatarPreview.dataset.currentImage;
 
             // Validate required fields
             if (!playerId || !playerName) {
                 alert('Player ID and Name are required');
-                return;
-            }
-
-            // Validate refresh offset format
-            if (refreshOffset && !validateRefreshOffset(refreshOffset)) {
-                alert('Invalid refresh offset format. Must be in format UTC±HH:MM');
                 return;
             }
 
@@ -576,7 +532,7 @@
                 player: playerId,
                 name: playerName,
                 account: ACCOUNT_ID,
-                refreshOffset: refreshOffset || undefined
+                email: playerEmail || undefined
             };
             formData.append('data', JSON.stringify(playerData));
             
