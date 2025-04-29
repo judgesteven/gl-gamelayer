@@ -10,24 +10,12 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // API Configuration
-const API_KEY = process.env.GAMELAYER_API_KEY;
-const ACCOUNT_ID = process.env.GAMELAYER_ACCOUNT_ID;
-const API_BASE_URL = process.env.GAMELAYER_API_BASE_URL;
+const API_KEY = process.env.GAMELAYER_API_KEY || '9567d1ba99b22b84ee2c27cadb56fde7';
+const ACCOUNT_ID = process.env.GAMELAYER_ACCOUNT_ID || 'ai-test';
+const API_BASE_URL = process.env.GAMELAYER_API_BASE_URL || 'https://api.gamelayer.co/api/v0';
 
 // Configure multer for image upload
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        const uploadDir = 'public/uploads';
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
-        }
-        cb(null, uploadDir);
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + path.extname(file.originalname));
-    }
-});
+const storage = multer.memoryStorage(); // Use memory storage instead of disk storage
 
 const upload = multer({ 
     storage: storage,
@@ -74,7 +62,7 @@ app.post('/api/create-player', upload.single('avatar'), async (req, res) => {
             }
         }
 
-        // Create the request body with the image URL if an image was uploaded
+        // Create the request body
         const requestBody = {
             player: player,
             name: name,
@@ -84,9 +72,9 @@ app.post('/api/create-player', upload.single('avatar'), async (req, res) => {
 
         // Add image URL if an image was uploaded
         if (req.file) {
-            // Get the base URL from the request
-            const baseUrl = `${req.protocol}://${req.get('host')}`;
-            requestBody.imgUrl = `${baseUrl}/uploads/${req.file.filename}`;
+            // Convert the image buffer to base64
+            const base64Image = req.file.buffer.toString('base64');
+            requestBody.imgUrl = `data:${req.file.mimetype};base64,${base64Image}`;
         }
 
         const headers = {
