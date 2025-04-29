@@ -287,11 +287,52 @@
             'https://api.dicebear.com/7.x/avataaars/svg?seed=John'
         ];
 
+        // Function to convert SVG to PNG
+        async function svgToPng(svgUrl) {
+            try {
+                // Fetch the SVG
+                const response = await fetch(svgUrl);
+                const svgText = await response.text();
+                
+                // Create a blob from the SVG
+                const svgBlob = new Blob([svgText], { type: 'image/svg+xml' });
+                const svgUrl = URL.createObjectURL(svgBlob);
+                
+                // Create an image element
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                
+                // Create a canvas
+                const canvas = document.createElement('canvas');
+                canvas.width = 400;
+                canvas.height = 400;
+                const ctx = canvas.getContext('2d');
+                
+                // Convert SVG to PNG
+                return new Promise((resolve, reject) => {
+                    img.onload = () => {
+                        ctx.drawImage(img, 0, 0, 400, 400);
+                        canvas.toBlob((blob) => {
+                            resolve(blob);
+                        }, 'image/png');
+                    };
+                    img.onerror = reject;
+                    img.src = svgUrl;
+                });
+            } catch (error) {
+                console.error('Error converting SVG to PNG:', error);
+                throw error;
+            }
+        }
+
         // Set random profile image on load
-        window.addEventListener('load', function() {
+        window.addEventListener('load', async function() {
             const randomImage = profileImages[Math.floor(Math.random() * profileImages.length)];
             const avatarPreview = document.getElementById('avatarPreview');
             avatarPreview.innerHTML = `<img src="${randomImage}" alt="Default avatar">`;
+            
+            // Store the current random image URL
+            avatarPreview.dataset.currentImage = randomImage;
         });
 
         // Validate refresh offset format
@@ -324,6 +365,8 @@
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     avatarPreview.innerHTML = `<img src="${e.target.result}" alt="Player avatar">`;
+                    // Clear the current image URL since we're using a custom upload
+                    avatarPreview.dataset.currentImage = '';
                 };
                 reader.readAsDataURL(file);
             }
@@ -336,6 +379,7 @@
             const playerName = document.getElementById('playerName').value;
             const refreshOffset = document.getElementById('refreshOffset').value;
             const avatarFile = document.getElementById('avatarInput').files[0];
+            const currentImageUrl = avatarPreview.dataset.currentImage;
 
             // Validate required fields
             if (!playerId || !playerName) {
@@ -361,12 +405,15 @@
             };
             formData.append('data', JSON.stringify(playerData));
             
-            // Add the avatar file if selected
-            if (avatarFile) {
-                formData.append('avatar', avatarFile);
-            }
-
             try {
+                // If no custom file is uploaded, use the random avatar
+                if (!avatarFile && currentImageUrl) {
+                    const pngBlob = await svgToPng(currentImageUrl);
+                    formData.append('avatar', pngBlob, 'avatar.png');
+                } else if (avatarFile) {
+                    formData.append('avatar', avatarFile);
+                }
+
                 const response = await fetch('/api/create-player', {
                     method: 'POST',
                     body: formData
@@ -381,6 +428,7 @@
                     // Set new random profile image
                     const randomImage = profileImages[Math.floor(Math.random() * profileImages.length)];
                     avatarPreview.innerHTML = `<img src="${randomImage}" alt="Default avatar">`;
+                    avatarPreview.dataset.currentImage = randomImage;
                 } else {
                     alert(`Error: ${data.error}`);
                 }
