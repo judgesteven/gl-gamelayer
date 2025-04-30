@@ -321,11 +321,24 @@ app.post('/api/signin', async (req, res) => {
         // Generate JWT token
         const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: '24h' });
 
-        res.status(200).json({
-            message: "Signed in successfully",
-            token,
-            redirect: '/dashboard.html'
-        });
+        // Get player data from GameLayer
+        try {
+            const playerData = await makeGameLayerRequest(`/players/${email}`, 'GET');
+            res.status(200).json({
+                message: "Signed in successfully",
+                token,
+                redirect: '/dashboard.html',
+                player: playerData
+            });
+        } catch (error) {
+            console.error('Error fetching player data:', error);
+            // Still return success if we can't get player data
+            res.status(200).json({
+                message: "Signed in successfully",
+                token,
+                redirect: '/dashboard.html'
+            });
+        }
     } catch (error) {
         console.error('Server error:', error);
         res.status(500).json({ 

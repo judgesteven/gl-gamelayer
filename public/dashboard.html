@@ -391,7 +391,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Check authentication
-        const token = localStorage.getItem('authToken');
+        const token = localStorage.getItem('token');
         if (!token) {
             window.location.href = '/';
         }
@@ -401,12 +401,19 @@
             try {
                 const response = await fetch('/api/player/me', {
                     headers: {
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
                     }
                 });
                 const data = await response.json();
                 
                 if (!response.ok) {
+                    if (response.status === 401) {
+                        // Token expired or invalid
+                        localStorage.removeItem('token');
+                        window.location.href = '/';
+                        return;
+                    }
                     throw new Error(data.error || 'Failed to load player data');
                 }
 
@@ -421,7 +428,13 @@
                 document.getElementById('rewardsClaimed').textContent = data.rewardsClaimed || '0';
             } catch (error) {
                 console.error('Error loading player data:', error);
-                alert('Failed to load player data. Please try again.');
+                if (error.message.includes('Failed to load player data')) {
+                    alert('Failed to load player data. Please try again.');
+                } else {
+                    alert('Session expired. Please sign in again.');
+                    localStorage.removeItem('token');
+                    window.location.href = '/';
+                }
             }
         }
 
@@ -430,12 +443,18 @@
             try {
                 const response = await fetch('/api/missions/me', {
                     headers: {
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
                     }
                 });
                 const data = await response.json();
                 
                 if (!response.ok) {
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        window.location.href = '/';
+                        return;
+                    }
                     throw new Error(data.error || 'Failed to load missions');
                 }
 
@@ -470,12 +489,18 @@
             try {
                 const response = await fetch('/api/rankings', {
                     headers: {
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
                     }
                 });
                 const data = await response.json();
                 
                 if (!response.ok) {
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        window.location.href = '/';
+                        return;
+                    }
                     throw new Error(data.error || 'Failed to load rankings');
                 }
 
@@ -507,12 +532,18 @@
             try {
                 const response = await fetch('/api/rewards/me', {
                     headers: {
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
                     }
                 });
                 const data = await response.json();
                 
                 if (!response.ok) {
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        window.location.href = '/';
+                        return;
+                    }
                     throw new Error(data.error || 'Failed to load rewards');
                 }
 
@@ -542,7 +573,7 @@
 
         // Logout function
         function logout() {
-            localStorage.removeItem('authToken');
+            localStorage.removeItem('token');
             window.location.href = '/';
         }
 
