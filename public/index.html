@@ -403,7 +403,7 @@
                     </div>
                     <div class="mb-3" id="nameField">
                         <label for="playerName" class="form-label">Player Name:</label>
-                        <input type="text" class="form-control" id="playerName" name="playerName" required>
+                        <input type="text" class="form-control" id="playerName" name="playerName">
                         <div class="form-text">Display name</div>
                     </div>
                     <button type="submit" class="btn btn-primary" id="submitButton">Sign Up</button>
@@ -425,6 +425,7 @@
             const title = document.getElementById('authTitle');
             const submitButton = document.getElementById('submitButton');
             const nameField = document.getElementById('nameField');
+            const playerNameInput = document.getElementById('playerName');
             const avatarSection = document.getElementById('avatarSection');
             const toggleText = document.getElementById('toggleAuth');
 
@@ -432,14 +433,26 @@
                 title.textContent = 'New Player Sign Up';
                 submitButton.textContent = 'Sign Up';
                 nameField.style.display = 'block';
+                playerNameInput.setAttribute('required', '');
                 avatarSection.style.display = 'block';
                 toggleText.textContent = 'Sign In';
             } else {
                 title.textContent = 'Existing Player Sign In';
                 submitButton.textContent = 'Sign In';
                 nameField.style.display = 'none';
+                playerNameInput.removeAttribute('required');
                 avatarSection.style.display = 'none';
                 toggleText.textContent = 'Sign Up';
+            }
+        });
+
+        // Set initial state
+        document.addEventListener('DOMContentLoaded', function() {
+            const playerNameInput = document.getElementById('playerName');
+            if (isSignUp) {
+                playerNameInput.setAttribute('required', '');
+            } else {
+                playerNameInput.removeAttribute('required');
             }
         });
 
