@@ -63,7 +63,21 @@ const authenticateToken = (req, res, next) => {
 // Sign up endpoint
 app.post('/api/signup', upload.single('avatar'), async (req, res) => {
     try {
-        const authData = JSON.parse(req.body.data);
+        if (!req.body || !req.body.data) {
+            return res.status(400).json({
+                error: "Missing form data"
+            });
+        }
+
+        let authData;
+        try {
+            authData = JSON.parse(req.body.data);
+        } catch (error) {
+            return res.status(400).json({
+                error: "Invalid JSON data"
+            });
+        }
+
         const { email, password, name } = authData;
 
         // Validate required fields
@@ -143,7 +157,21 @@ app.post('/api/signup', upload.single('avatar'), async (req, res) => {
 // Sign in endpoint
 app.post('/api/signin', async (req, res) => {
     try {
-        const authData = JSON.parse(req.body.data);
+        if (!req.body || !req.body.data) {
+            return res.status(400).json({
+                error: "Missing form data"
+            });
+        }
+
+        let authData;
+        try {
+            authData = JSON.parse(req.body.data);
+        } catch (error) {
+            return res.status(400).json({
+                error: "Invalid JSON data"
+            });
+        }
+
         const { email, password } = authData;
 
         // Validate required fields

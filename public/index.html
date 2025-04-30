@@ -506,8 +506,7 @@
             // Add the authentication data
             const authData = {
                 email: email,
-                password: password,
-                account: ACCOUNT_ID
+                password: password
             };
 
             if (isSignUp) {
@@ -531,20 +530,21 @@
                     body: formData
                 });
 
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'An error occurred');
+                }
+
                 const data = await response.json();
 
-                if (response.ok) {
-                    // Store the authentication token
-                    localStorage.setItem('authToken', data.token);
-                    alert(isSignUp ? 'Account created successfully!' : 'Signed in successfully!');
-                    // Redirect to dashboard or home page
-                    window.location.href = '/';
-                } else {
-                    alert(`Error: ${data.error}`);
-                }
+                // Store the authentication token
+                localStorage.setItem('authToken', data.token);
+                alert(isSignUp ? 'Account created successfully!' : 'Signed in successfully!');
+                // Redirect to dashboard or home page
+                window.location.href = '/';
             } catch (error) {
                 console.error('Error:', error);
-                alert('An error occurred. Please try again.');
+                alert(error.message || 'An error occurred. Please try again.');
             }
         });
 
