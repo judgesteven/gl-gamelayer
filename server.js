@@ -12,16 +12,17 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // API Configuration
-const API_KEY = process.env.GAMELAYER_API_KEY;
-const ACCOUNT_ID = process.env.GAMELAYER_ACCOUNT_ID;
-const API_BASE_URL = process.env.GAMELAYER_API_BASE_URL;
-const JWT_SECRET = process.env.JWT_SECRET;
+const API_KEY = process.env.GAMELAYER_API_KEY || '9567d1ba99b22b84ee2c27cadb56fde7';
+const ACCOUNT_ID = process.env.GAMELAYER_ACCOUNT_ID || 'ai-test';
+const API_BASE_URL = process.env.GAMELAYER_API_BASE_URL || 'https://api.gamelayer.co/api/v0';
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
-// Validate required environment variables
-if (!API_KEY || !ACCOUNT_ID || !API_BASE_URL || !JWT_SECRET) {
-    console.error('Missing required environment variables. Please check your .env file.');
-    process.exit(1);
-}
+// Log configuration (without sensitive data)
+console.log('Server configuration:', {
+    API_BASE_URL,
+    ACCOUNT_ID,
+    NODE_ENV: process.env.NODE_ENV
+});
 
 // Configure multer for image upload
 const storage = multer.memoryStorage();
@@ -456,6 +457,15 @@ app.get('/', (req, res) => {
 // Serve the dashboard page
 app.get('/dashboard.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error('Server error:', err);
+    res.status(500).json({
+        error: 'Internal server error',
+        message: err.message
+    });
 });
 
 // For Vercel deployment
