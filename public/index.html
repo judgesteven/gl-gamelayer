@@ -501,27 +501,42 @@
             }
 
             try {
-                // Create the request data
-                const requestData = {
+                // Create FormData for the request
+                const formData = new FormData();
+                
+                // Add the authentication data
+                const authData = {
                     email: email,
                     password: password
                 };
 
                 if (isSignUp) {
-                    requestData.name = playerName;
+                    authData.name = playerName;
+                }
+
+                // Convert authData to JSON string and append to FormData
+                formData.append('data', JSON.stringify(authData));
+                
+                // If signing up and no custom file is uploaded, use the random avatar
+                if (isSignUp && !avatarFile && currentImageUrl) {
+                    try {
+                        const pngBlob = await svgToPng(currentImageUrl);
+                        formData.append('avatar', pngBlob, 'avatar.png');
+                    } catch (error) {
+                        console.error('Error converting SVG to PNG:', error);
+                        // Continue without avatar if conversion fails
+                    }
+                } else if (isSignUp && avatarFile) {
+                    formData.append('avatar', avatarFile);
                 }
 
                 const endpoint = isSignUp ? '/api/signup' : '/api/signin';
                 console.log('Sending request to:', endpoint);
-                console.log('Request data:', requestData);
+                console.log('Form data:', Object.fromEntries(formData));
 
                 const response = await fetch(endpoint, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(requestData)
+                    body: formData
                 });
 
                 const data = await response.json();

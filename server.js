@@ -112,14 +112,37 @@ async function makeGameLayerRequest(endpoint, method = 'GET', body = null) {
 }
 
 // Sign up endpoint
-app.post('/api/signup', async (req, res) => {
+app.post('/api/signup', upload.single('avatar'), async (req, res) => {
     try {
         console.log('Received signup request:', {
             body: req.body,
-            headers: req.headers
+            file: req.file ? {
+                fieldname: req.file.fieldname,
+                originalname: req.file.originalname,
+                mimetype: req.file.mimetype,
+                size: req.file.size
+            } : null
         });
 
-        const { email, password, name } = req.body;
+        if (!req.body || !req.body.data) {
+            console.error('Missing form data in request');
+            return res.status(400).json({
+                error: "Missing form data"
+            });
+        }
+
+        let authData;
+        try {
+            authData = JSON.parse(req.body.data);
+            console.log('Parsed auth data:', authData);
+        } catch (error) {
+            console.error('JSON parse error:', error);
+            return res.status(400).json({
+                error: "Invalid JSON data"
+            });
+        }
+
+        const { email, password, name } = authData;
 
         // Validate required fields
         if (!email || !password || !name) {
@@ -145,6 +168,12 @@ app.post('/api/signup', async (req, res) => {
             name: name,
             account: ACCOUNT_ID
         };
+
+        // Add image URL if an image was uploaded
+        if (req.file) {
+            const base64Image = req.file.buffer.toString('base64');
+            requestBody.imgUrl = `data:${req.file.mimetype};base64,${base64Image}`;
+        }
 
         try {
             await makeGameLayerRequest('/players', 'POST', requestBody);
