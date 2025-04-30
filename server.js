@@ -324,6 +324,7 @@ app.post('/api/signin', async (req, res) => {
         // Check if user exists
         const user = users.get(email);
         if (!user) {
+            console.error('User not found:', email);
             return res.status(401).json({
                 error: "Invalid email or password"
             });
@@ -332,6 +333,7 @@ app.post('/api/signin', async (req, res) => {
         // Verify password
         const validPassword = await bcrypt.compare(password, user.password);
         if (!validPassword) {
+            console.error('Invalid password for user:', email);
             return res.status(401).json({
                 error: "Invalid email or password"
             });

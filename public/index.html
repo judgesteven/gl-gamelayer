@@ -478,111 +478,57 @@
             
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const playerName = document.getElementById('playerName').value;
+            const name = document.getElementById('playerName').value;
             const avatarFile = document.getElementById('avatarInput').files[0];
-            const currentImageUrl = document.getElementById('avatarPreview').dataset.currentImage;
-
+            
             // Validate email format
-            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
                 alert('Please enter a valid email address');
                 return;
             }
 
-            // Validate required fields
+            // Check required fields
             if (!email || !password) {
                 alert('Email and password are required');
                 return;
             }
 
-            if (isSignUp && !playerName) {
-                alert('Player name is required for sign up');
+            // If signing up, name is required
+            if (isSignUp && !name) {
+                alert('Name is required for sign up');
                 return;
             }
 
             try {
-                const endpoint = isSignUp ? '/api/signup' : '/api/signin';
-                console.log('Sending request to:', endpoint);
+                const formData = new FormData();
+                formData.append('data', JSON.stringify({
+                    email,
+                    password,
+                    name: isSignUp ? name : undefined
+                }));
 
-                if (isSignUp) {
-                    // For signup, use FormData to handle file upload
-                    const formData = new FormData();
-                    const authData = {
-                        email: email,
-                        password: password,
-                        name: playerName
-                    };
-                    formData.append('data', JSON.stringify(authData));
-                    
-                    if (!avatarFile && currentImageUrl) {
-                        try {
-                            const pngBlob = await svgToPng(currentImageUrl);
-                            formData.append('avatar', pngBlob, 'avatar.png');
-                        } catch (error) {
-                            console.error('Error converting SVG to PNG:', error);
-                        }
-                    } else if (avatarFile) {
-                        formData.append('avatar', avatarFile);
-                    }
-
-                    const response = await fetch(endpoint, {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'Accept': 'application/json'
-                        }
-                    });
-
-                    const data = await response.json();
-                    console.log('Response:', data);
-
-                    if (data.error) {
-                        throw new Error(data.error);
-                    }
-
-                    // Store the token
-                    localStorage.setItem('token', data.token);
-                    
-                    // Redirect to dashboard
-                    if (data.redirect) {
-                        window.location.href = data.redirect;
-                    } else {
-                        window.location.href = '/dashboard.html';
-                    }
-                } else {
-                    // For signin, send JSON data
-                    const response = await fetch(endpoint, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            email: email,
-                            password: password
-                        })
-                    });
-
-                    const data = await response.json();
-                    console.log('Response:', data);
-
-                    if (data.error) {
-                        throw new Error(data.error);
-                    }
-
-                    // Store the token
-                    localStorage.setItem('token', data.token);
-                    
-                    // Redirect to dashboard
-                    if (data.redirect) {
-                        window.location.href = data.redirect;
-                    } else {
-                        window.location.href = '/dashboard.html';
-                    }
+                if (avatarFile) {
+                    formData.append('avatar', avatarFile);
                 }
+
+                const response = await fetch(`/api/${isSignUp ? 'signup' : 'signin'}`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Authentication failed');
+                }
+
+                // Store token and redirect
+                localStorage.setItem('token', data.token);
+                window.location.href = data.redirect || '/dashboard.html';
             } catch (error) {
-                console.error('Error:', error);
-                alert(error.message || 'An error occurred during sign in/sign up');
+                console.error('Authentication error:', error);
+                alert(error.message || 'Authentication failed. Please try again.');
             }
         });
 
