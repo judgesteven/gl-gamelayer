@@ -548,9 +548,14 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    alert('Player created successfully!');
-                    // Redirect to dashboard
-                    window.location.href = `/dashboard.html?id=${playerId}`;
+                    if (data.exists) {
+                        // Player exists, redirect to dashboard
+                        window.location.href = `/dashboard.html?id=${playerId}`;
+                    } else {
+                        // New player created, show success message and redirect
+                        alert('Player created successfully!');
+                        window.location.href = `/dashboard.html?id=${playerId}`;
+                    }
                 } else {
                     alert(`Error: ${data.error}`);
                 }
@@ -559,26 +564,6 @@
                 alert('Error creating player. Please try again.');
             }
         });
-
-        // Update hidden input when time changes
-        const timeSelect = document.getElementById('timeSelect');
-        const refreshOffsetInput = document.getElementById('refreshOffset');
-
-        function updateRefreshOffset() {
-            const time = timeSelect.value;
-            if (time) {
-                const [hours, minutes] = time.split(':');
-                refreshOffsetInput.value = `UTC+${hours}:${minutes}`;
-            } else {
-                refreshOffsetInput.value = '';
-            }
-        }
-
-        timeSelect.addEventListener('change', updateRefreshOffset);
-
-        // Set default time to 00:00
-        timeSelect.value = '00:00';
-        updateRefreshOffset();
     </script>
 </body>
 </html> 
