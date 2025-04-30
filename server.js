@@ -242,7 +242,8 @@ app.post('/api/signup', upload.single('avatar'), async (req, res) => {
 
         res.status(201).json({
             message: "User created successfully",
-            token
+            token,
+            redirect: '/dashboard.html'
         });
     } catch (error) {
         console.error('Server error:', error);
@@ -322,7 +323,8 @@ app.post('/api/signin', async (req, res) => {
 
         res.status(200).json({
             message: "Signed in successfully",
-            token
+            token,
+            redirect: '/dashboard.html'
         });
     } catch (error) {
         console.error('Server error:', error);
@@ -552,6 +554,106 @@ app.get('/api/prizes/:id', async (req, res) => {
         res.status(500).json({ 
             error: error.message,
             errorCode: 500
+        });
+    }
+});
+
+// API endpoint to get current player data
+app.get('/api/player/me', authenticateToken, async (req, res) => {
+    try {
+        const email = req.user.email;
+        const user = users.get(email);
+        
+        if (!user) {
+            return res.status(404).json({
+                error: "User not found"
+            });
+        }
+
+        // Get player data from GameLayer
+        try {
+            const playerData = await makeGameLayerRequest(`/players/${email}`, 'GET');
+            res.json({
+                ...playerData,
+                email: user.email,
+                name: user.name
+            });
+        } catch (error) {
+            console.error('Error fetching player data:', error);
+            res.status(500).json({
+                error: "Failed to fetch player data"
+            });
+        }
+    } catch (error) {
+        console.error('Server error:', error);
+        res.status(500).json({ 
+            error: error.message
+        });
+    }
+});
+
+// API endpoint to get player missions
+app.get('/api/missions/me', authenticateToken, async (req, res) => {
+    try {
+        const email = req.user.email;
+        
+        try {
+            const missions = await makeGameLayerRequest(`/missions?player=${email}`, 'GET');
+            res.json(missions);
+        } catch (error) {
+            console.error('Error fetching missions:', error);
+            res.status(500).json({
+                error: "Failed to fetch missions"
+            });
+        }
+    } catch (error) {
+        console.error('Server error:', error);
+        res.status(500).json({ 
+            error: error.message
+        });
+    }
+});
+
+// API endpoint to get rankings
+app.get('/api/rankings', authenticateToken, async (req, res) => {
+    try {
+        try {
+            const rankings = await makeGameLayerRequest('/players', 'GET');
+            // Sort players by points in descending order
+            const sortedRankings = rankings.sort((a, b) => (b.points || 0) - (a.points || 0));
+            res.json(sortedRankings);
+        } catch (error) {
+            console.error('Error fetching rankings:', error);
+            res.status(500).json({
+                error: "Failed to fetch rankings"
+            });
+        }
+    } catch (error) {
+        console.error('Server error:', error);
+        res.status(500).json({ 
+            error: error.message
+        });
+    }
+});
+
+// API endpoint to get player rewards
+app.get('/api/rewards/me', authenticateToken, async (req, res) => {
+    try {
+        const email = req.user.email;
+        
+        try {
+            const rewards = await makeGameLayerRequest(`/prizes?player=${email}`, 'GET');
+            res.json(rewards);
+        } catch (error) {
+            console.error('Error fetching rewards:', error);
+            res.status(500).json({
+                error: "Failed to fetch rewards"
+            });
+        }
+    } catch (error) {
+        console.error('Server error:', error);
+        res.status(500).json({ 
+            error: error.message
         });
     }
 });

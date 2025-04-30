@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="./Logo_Red.png">
+    <link rel="shortcut icon" type="image/png" href="./Logo_Red.png">
+    <title>GameLayer Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #6366F1;
+            --primary-hover: #4F46E5;
+            --secondary-color: #1E293B;
+            --accent-color: #F43F5E;
+            --light-bg: #F8FAFC;
+            --dark-bg: #0F172A;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --text-primary: #1E293B;
+            --text-secondary: #64748B;
+            --border-radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            height: 40px;
+            width: auto;
+        }
+
+        .nav-tabs {
+            border: none;
+            margin-bottom: 2rem;
+        }
+
+        .nav-tabs .nav-link {
+            border: none;
+            color: var(--text-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            font-weight: 600;
+        }
+
+        .nav-tabs .nav-link:hover {
+            color: var(--primary-color);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--primary-color);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .tab-content {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .card {
+            border: none;
+            border-radius: var(--border-radius);
+            background: rgba(255, 255, 255, 0.9);
+            transition: var(--transition);
+            margin-bottom: 1.5rem;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            background: rgba(0, 0, 0, 0.05);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            font-weight: 600;
+        }
+
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary-color);
+        }
+
+        .profile-info h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .profile-info p {
+            color: var(--text-secondary);
+            margin: 0.5rem 0 0;
+        }
+
+        .mission-card {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+        .mission-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .mission-info {
+            flex: 1;
+        }
+
+        .mission-info h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .mission-info p {
+            margin: 0.25rem 0 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .mission-progress {
+            width: 100%;
+            height: 6px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 3px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+
+        .mission-progress-bar {
+            height: 100%;
+            background: var(--primary-color);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .ranking-item:last-child {
+            border-bottom: none;
+        }
+
+        .ranking-position {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .ranking-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .ranking-info {
+            flex: 1;
+        }
+
+        .ranking-info h3 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .ranking-info p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .ranking-score {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .reward-card {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+        .reward-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .reward-info {
+            flex: 1;
+        }
+
+        .reward-info h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .reward-info p {
+            margin: 0.25rem 0 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .reward-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .reward-status.available {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary-color);
+        }
+
+        .reward-status.claimed {
+            background: rgba(34, 197, 94, 0.1);
+            color: #16a34a;
+        }
+
+        .reward-status.locked {
+            background: rgba(0, 0, 0, 0.1);
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .dashboard-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .profile-section {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .tab-content {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="dashboard-header">
+            <img src="./Logo_Red.png" alt="GameLayer Logo" class="logo">
+            <button class="btn btn-outline-light" onclick="logout()">Sign Out</button>
+        </div>
+
+        <ul class="nav nav-tabs" id="dashboardTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab">Profile</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="missions-tab" data-bs-toggle="tab" data-bs-target="#missions" type="button" role="tab">Missions</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="rankings-tab" data-bs-toggle="tab" data-bs-target="#rankings" type="button" role="tab">Rankings</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="rewards-tab" data-bs-toggle="tab" data-bs-target="#rewards" type="button" role="tab">Rewards</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="dashboardTabContent">
+            <!-- Profile Tab -->
+            <div class="tab-pane fade show active" id="profile" role="tabpanel">
+                <div class="profile-section">
+                    <img src="" alt="Profile Avatar" class="profile-avatar" id="profileAvatar">
+                    <div class="profile-info">
+                        <h2 id="playerName">Loading...</h2>
+                        <p id="playerEmail">Loading...</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">Player Stats</div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h3>Total Points</h3>
+                                <p id="totalPoints">Loading...</p>
+                            </div>
+                            <div class="col-md-4">
+                                <h3>Missions Completed</h3>
+                                <p id="missionsCompleted">Loading...</p>
+                            </div>
+                            <div class="col-md-4">
+                                <h3>Rewards Claimed</h3>
+                                <p id="rewardsClaimed">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Missions Tab -->
+            <div class="tab-pane fade" id="missions" role="tabpanel">
+                <div id="missionsList">
+                    <!-- Missions will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Rankings Tab -->
+            <div class="tab-pane fade" id="rankings" role="tabpanel">
+                <div id="rankingsList">
+                    <!-- Rankings will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Rewards Tab -->
+            <div class="tab-pane fade" id="rewards" role="tabpanel">
+                <div id="rewardsList">
+                    <!-- Rewards will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Check authentication
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            window.location.href = '/';
+        }
+
+        // Load player data
+        async function loadPlayerData() {
+            try {
+                const response = await fetch('/api/player/me', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to load player data');
+                }
+
+                // Update profile section
+                document.getElementById('playerName').textContent = data.name;
+                document.getElementById('playerEmail').textContent = data.email;
+                document.getElementById('profileAvatar').src = data.imgUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=default';
+                
+                // Update stats
+                document.getElementById('totalPoints').textContent = data.points || '0';
+                document.getElementById('missionsCompleted').textContent = data.missionsCompleted || '0';
+                document.getElementById('rewardsClaimed').textContent = data.rewardsClaimed || '0';
+            } catch (error) {
+                console.error('Error loading player data:', error);
+                alert('Failed to load player data. Please try again.');
+            }
+        }
+
+        // Load missions
+        async function loadMissions() {
+            try {
+                const response = await fetch('/api/missions/me', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to load missions');
+                }
+
+                const missionsList = document.getElementById('missionsList');
+                missionsList.innerHTML = '';
+
+                data.forEach(mission => {
+                    const missionCard = document.createElement('div');
+                    missionCard.className = 'card mission-card';
+                    missionCard.innerHTML = `
+                        <div class="mission-icon">
+                            <i class="bi bi-flag"></i>
+                        </div>
+                        <div class="mission-info">
+                            <h3>${mission.name}</h3>
+                            <p>${mission.description}</p>
+                            <div class="mission-progress">
+                                <div class="mission-progress-bar" style="width: ${mission.progress}%"></div>
+                            </div>
+                        </div>
+                    `;
+                    missionsList.appendChild(missionCard);
+                });
+            } catch (error) {
+                console.error('Error loading missions:', error);
+                alert('Failed to load missions. Please try again.');
+            }
+        }
+
+        // Load rankings
+        async function loadRankings() {
+            try {
+                const response = await fetch('/api/rankings', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to load rankings');
+                }
+
+                const rankingsList = document.getElementById('rankingsList');
+                rankingsList.innerHTML = '';
+
+                data.forEach((player, index) => {
+                    const rankingItem = document.createElement('div');
+                    rankingItem.className = 'ranking-item';
+                    rankingItem.innerHTML = `
+                        <div class="ranking-position">${index + 1}</div>
+                        <img src="${player.imgUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=default'}" alt="${player.name}" class="ranking-avatar">
+                        <div class="ranking-info">
+                            <h3>${player.name}</h3>
+                            <p>${player.email}</p>
+                        </div>
+                        <div class="ranking-score">${player.points} pts</div>
+                    `;
+                    rankingsList.appendChild(rankingItem);
+                });
+            } catch (error) {
+                console.error('Error loading rankings:', error);
+                alert('Failed to load rankings. Please try again.');
+            }
+        }
+
+        // Load rewards
+        async function loadRewards() {
+            try {
+                const response = await fetch('/api/rewards/me', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to load rewards');
+                }
+
+                const rewardsList = document.getElementById('rewardsList');
+                rewardsList.innerHTML = '';
+
+                data.forEach(reward => {
+                    const rewardCard = document.createElement('div');
+                    rewardCard.className = 'card reward-card';
+                    rewardCard.innerHTML = `
+                        <div class="reward-icon">
+                            <i class="bi bi-gift"></i>
+                        </div>
+                        <div class="reward-info">
+                            <h3>${reward.name}</h3>
+                            <p>${reward.description}</p>
+                        </div>
+                        <span class="reward-status ${reward.status.toLowerCase()}">${reward.status}</span>
+                    `;
+                    rewardsList.appendChild(rewardCard);
+                });
+            } catch (error) {
+                console.error('Error loading rewards:', error);
+                alert('Failed to load rewards. Please try again.');
+            }
+        }
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('authToken');
+            window.location.href = '/';
+        }
+
+        // Load data when tab is shown
+        document.querySelectorAll('button[data-bs-toggle="tab"]').forEach(tab => {
+            tab.addEventListener('shown.bs.tab', (e) => {
+                switch (e.target.id) {
+                    case 'profile-tab':
+                        loadPlayerData();
+                        break;
+                    case 'missions-tab':
+                        loadMissions();
+                        break;
+                    case 'rankings-tab':
+                        loadRankings();
+                        break;
+                    case 'rewards-tab':
+                        loadRewards();
+                        break;
+                }
+            });
+        });
+
+        // Load initial data
+        loadPlayerData();
+    </script>
+</body>
+</html> 
