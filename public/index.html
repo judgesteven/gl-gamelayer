@@ -500,22 +500,23 @@
                 return;
             }
 
-            // Create FormData
-            const formData = new FormData();
-            
-            // Add the authentication data
-            const authData = {
-                email: email,
-                password: password
-            };
-
-            if (isSignUp) {
-                authData.name = playerName;
-            }
-
-            formData.append('data', JSON.stringify(authData));
-            
             try {
+                // Create FormData
+                const formData = new FormData();
+                
+                // Add the authentication data
+                const authData = {
+                    email: email,
+                    password: password
+                };
+
+                if (isSignUp) {
+                    authData.name = playerName;
+                }
+
+                // Convert authData to JSON string and append to FormData
+                formData.append('data', JSON.stringify(authData));
+                
                 // If signing up and no custom file is uploaded, use the random avatar
                 if (isSignUp && !avatarFile && currentImageUrl) {
                     const pngBlob = await svgToPng(currentImageUrl);
@@ -525,6 +526,9 @@
                 }
 
                 const endpoint = isSignUp ? '/api/signup' : '/api/signin';
+                console.log('Sending request to:', endpoint);
+                console.log('Form data:', Object.fromEntries(formData));
+
                 const response = await fetch(endpoint, {
                     method: 'POST',
                     body: formData
@@ -536,6 +540,7 @@
                 }
 
                 const data = await response.json();
+                console.log('Response:', data);
 
                 // Store the authentication token
                 localStorage.setItem('authToken', data.token);

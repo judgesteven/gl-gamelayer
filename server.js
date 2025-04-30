@@ -63,7 +63,18 @@ const authenticateToken = (req, res, next) => {
 // Sign up endpoint
 app.post('/api/signup', upload.single('avatar'), async (req, res) => {
     try {
+        console.log('Received signup request:', {
+            body: req.body,
+            file: req.file ? {
+                fieldname: req.file.fieldname,
+                originalname: req.file.originalname,
+                mimetype: req.file.mimetype,
+                size: req.file.size
+            } : null
+        });
+
         if (!req.body || !req.body.data) {
+            console.error('Missing form data in request');
             return res.status(400).json({
                 error: "Missing form data"
             });
@@ -72,7 +83,9 @@ app.post('/api/signup', upload.single('avatar'), async (req, res) => {
         let authData;
         try {
             authData = JSON.parse(req.body.data);
+            console.log('Parsed auth data:', authData);
         } catch (error) {
+            console.error('JSON parse error:', error);
             return res.status(400).json({
                 error: "Invalid JSON data"
             });
@@ -82,6 +95,7 @@ app.post('/api/signup', upload.single('avatar'), async (req, res) => {
 
         // Validate required fields
         if (!email || !password || !name) {
+            console.error('Missing required fields:', { email: !!email, password: !!password, name: !!name });
             return res.status(400).json({
                 error: "Missing required fields: email, password, and name are required"
             });
@@ -157,7 +171,10 @@ app.post('/api/signup', upload.single('avatar'), async (req, res) => {
 // Sign in endpoint
 app.post('/api/signin', async (req, res) => {
     try {
+        console.log('Received signin request:', req.body);
+
         if (!req.body || !req.body.data) {
+            console.error('Missing form data in request');
             return res.status(400).json({
                 error: "Missing form data"
             });
@@ -166,7 +183,9 @@ app.post('/api/signin', async (req, res) => {
         let authData;
         try {
             authData = JSON.parse(req.body.data);
+            console.log('Parsed auth data:', authData);
         } catch (error) {
+            console.error('JSON parse error:', error);
             return res.status(400).json({
                 error: "Invalid JSON data"
             });
@@ -176,6 +195,7 @@ app.post('/api/signin', async (req, res) => {
 
         // Validate required fields
         if (!email || !password) {
+            console.error('Missing required fields:', { email: !!email, password: !!password });
             return res.status(400).json({
                 error: "Missing required fields: email and password are required"
             });
