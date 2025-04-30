@@ -410,6 +410,7 @@
             const playerId = document.getElementById('playerId').value;
             const playerName = document.getElementById('playerName').value;
             const avatarFile = document.getElementById('avatarInput').files[0];
+            const avatarPreview = document.getElementById('avatarPreview');
             
             // Validate required fields
             if (!playerId || !playerName) {
@@ -429,9 +430,41 @@
                 
                 formData.append('data', JSON.stringify(playerData));
 
+                // Handle avatar
                 if (avatarFile) {
+                    console.log('Adding avatar file:', {
+                        name: avatarFile.name,
+                        type: avatarFile.type,
+                        size: avatarFile.size
+                    });
                     formData.append('avatar', avatarFile);
+                } else if (avatarPreview.dataset.currentImage) {
+                    // If no custom avatar is uploaded, use the random one
+                    console.log('Using random avatar:', avatarPreview.dataset.currentImage);
+                    try {
+                        // Convert SVG URL to PNG URL
+                        const svgUrl = avatarPreview.dataset.currentImage;
+                        const pngUrl = svgUrl.replace('/svg?', '/png?');
+                        
+                        const response = await fetch(pngUrl);
+                        const blob = await response.blob();
+                        formData.append('avatar', blob, 'random-avatar.png');
+                        
+                        console.log('Converted random avatar to PNG:', {
+                            originalUrl: svgUrl,
+                            pngUrl: pngUrl,
+                            blobSize: blob.size,
+                            blobType: blob.type
+                        });
+                    } catch (error) {
+                        console.error('Error converting random avatar:', error);
+                    }
                 }
+
+                console.log('Sending form data:', {
+                    hasData: formData.has('data'),
+                    hasAvatar: formData.has('avatar')
+                });
 
                 const response = await fetch('/api/create-player', {
                     method: 'POST',

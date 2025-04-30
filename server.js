@@ -92,7 +92,7 @@ async function makeGameLayerRequest(endpoint, method = 'GET', body = null) {
 // API endpoint to create a player
 app.post('/api/create-player', upload.single('avatar'), async (req, res) => {
     try {
-        console.log('Received request:', {
+        console.log('Received create player request:', {
             body: req.body,
             file: req.file ? {
                 fieldname: req.file.fieldname,
@@ -102,44 +102,70 @@ app.post('/api/create-player', upload.single('avatar'), async (req, res) => {
             } : null
         });
 
-        // Parse the JSON data from the form
-        const playerData = JSON.parse(req.body.data);
-        
-        // Validate required fields
-        const { player, name } = playerData;
-        if (!player || !name) {
-            return res.status(400).json({
-                error: "Missing required fields: player and name are required"
-            });
+        // Validate form data
+        if (!req.body.data) {
+            return res.status(400).json({ error: 'Missing form data' });
         }
 
-        // Create the request body
+        // Parse the JSON data
+        const playerData = JSON.parse(req.body.data);
+        console.log('Parsed player data:', playerData);
+
+        // Validate required fields
+        if (!playerData.player || !playerData.name) {
+            return res.status(400).json({ error: 'Player ID and name are required' });
+        }
+
+        // Check if player already exists
+        const existingPlayer = await makeGameLayerRequest('GET', `/players/${playerData.player}`);
+        if (existingPlayer) {
+            return res.status(400).json({ error: 'Player already exists' });
+        }
+
+        // Prepare the request body
         const requestBody = {
-            player: player,
-            name: name,
-            account: ACCOUNT_ID
+            player: playerData.player,
+            name: playerData.name
         };
 
-        // Add image URL if an image was uploaded
+        // Handle avatar if present
         if (req.file) {
-            const base64Image = req.file.buffer.toString('base64');
-            requestBody.imgUrl = `data:${req.file.mimetype};base64,${base64Image}`;
-        }
-
-        const response = await makeGameLayerRequest('/players', 'POST', requestBody);
-        
-        if (!response) {
-            return res.status(500).json({
-                error: "Failed to create player in GameLayer"
+            console.log('Processing avatar file:', {
+                originalname: req.file.originalname,
+                mimetype: req.file.mimetype,
+                size: req.file.size
             });
+
+            try {
+                // Convert file to base64
+                const base64Image = req.file.buffer.toString('base64');
+                const mimeType = req.file.mimetype;
+                requestBody.avatar = `data:${mimeType};base64,${base64Image}`;
+                
+                console.log('Avatar added to request:', {
+                    mimeType,
+                    base64Length: base64Image.length
+                });
+            } catch (error) {
+                console.error('Error processing avatar:', error);
+            }
         }
 
-        res.status(201).json(response);
-    } catch (error) {
-        console.error('Server error:', error);
-        res.status(500).json({ 
-            error: error.message
+        console.log('Sending request to GameLayer:', {
+            ...requestBody,
+            avatar: requestBody.avatar ? '[BASE64_IMAGE]' : undefined
         });
+
+        // Create player in GameLayer
+        const response = await makeGameLayerRequest('POST', '/players', requestBody);
+        if (!response) {
+            throw new Error('Failed to create player in GameLayer');
+        }
+
+        res.json({ message: 'Player created successfully', player: response });
+    } catch (error) {
+        console.error('Error creating player:', error);
+        res.status(500).json({ error: error.message || 'Failed to create player' });
     }
 });
 
