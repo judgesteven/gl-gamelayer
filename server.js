@@ -46,10 +46,9 @@ app.use(express.static('public'));
 // Helper function to make GameLayer API requests
 async function makeGameLayerRequest(method, endpoint, body = null) {
     const headers = {
-        'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'x-api-key': API_KEY,
-        'x-account-id': ACCOUNT_ID
+        'Accept': 'application/json',
+        'api-key': API_KEY
     };
 
     const options = {
@@ -63,7 +62,7 @@ async function makeGameLayerRequest(method, endpoint, body = null) {
 
     console.log(`Making ${method} request to GameLayer API:`, {
         url: `${API_BASE_URL}${endpoint}`,
-        headers: { ...headers, 'x-api-key': '***', 'x-account-id': '***' },
+        headers: { ...headers, 'api-key': '***' },
         body: body ? { ...body, avatar: body.avatar ? '[BASE64_IMAGE]' : undefined } : undefined
     });
 
