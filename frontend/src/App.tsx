@@ -36,6 +36,18 @@ function App() {
                 placeholder="Enter player name"
               />
             </div>
+            <div>
+              <label htmlFor="playerEmail" className="block text-sm font-medium text-foreground">
+                Email Address
+              </label>
+              <input
+                type="email"
+                id="playerEmail"
+                disabled
+                className="mt-1 block w-full rounded-md border border-input bg-muted px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-not-allowed"
+                placeholder="Coming soon"
+              />
+            </div>
           </div>
           <Button className="w-full">
             Create Player
