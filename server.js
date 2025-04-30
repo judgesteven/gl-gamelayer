@@ -12,10 +12,16 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // API Configuration
-const API_KEY = process.env.GAMELAYER_API_KEY || '9567d1ba99b22b84ee2c27cadb56fde7';
-const ACCOUNT_ID = process.env.GAMELAYER_ACCOUNT_ID || 'ai-test';
-const API_BASE_URL = process.env.GAMELAYER_API_BASE_URL || 'https://api.gamelayer.co/api/v0';
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const API_KEY = process.env.GAMELAYER_API_KEY;
+const ACCOUNT_ID = process.env.GAMELAYER_ACCOUNT_ID;
+const API_BASE_URL = process.env.GAMELAYER_API_BASE_URL;
+const JWT_SECRET = process.env.JWT_SECRET;
+
+// Validate required environment variables
+if (!API_KEY || !ACCOUNT_ID || !API_BASE_URL || !JWT_SECRET) {
+    console.error('Missing required environment variables. Please check your .env file.');
+    process.exit(1);
+}
 
 // Configure multer for image upload
 const storage = multer.memoryStorage();
@@ -36,6 +42,7 @@ const upload = multer({
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.use('/uploads', express.static('public/uploads'));
 
@@ -60,38 +67,58 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
+// Helper function to make GameLayer API requests
+async function makeGameLayerRequest(endpoint, method = 'GET', body = null) {
+    const headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'api-key': API_KEY
+    };
+
+    const options = {
+        method,
+        headers
+    };
+
+    if (body) {
+        options.body = JSON.stringify(body);
+    }
+
+    console.log(`Making ${method} request to GameLayer API:`, {
+        url: `${API_BASE_URL}${endpoint}`,
+        headers: { ...headers, 'api-key': '***' },
+        body: body ? { ...body, imgUrl: body.imgUrl ? '[BASE64_IMAGE]' : undefined } : undefined
+    });
+
+    try {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+        const data = await response.json();
+
+        if (!response.ok) {
+            console.error('GameLayer API error:', {
+                status: response.status,
+                statusText: response.statusText,
+                error: data
+            });
+            throw new Error(data.error || 'API request failed');
+        }
+
+        return data;
+    } catch (error) {
+        console.error('GameLayer API request failed:', error);
+        throw error;
+    }
+}
+
 // Sign up endpoint
-app.post('/api/signup', upload.single('avatar'), async (req, res) => {
+app.post('/api/signup', async (req, res) => {
     try {
         console.log('Received signup request:', {
             body: req.body,
-            file: req.file ? {
-                fieldname: req.file.fieldname,
-                originalname: req.file.originalname,
-                mimetype: req.file.mimetype,
-                size: req.file.size
-            } : null
+            headers: req.headers
         });
 
-        if (!req.body || !req.body.data) {
-            console.error('Missing form data in request');
-            return res.status(400).json({
-                error: "Missing form data"
-            });
-        }
-
-        let authData;
-        try {
-            authData = JSON.parse(req.body.data);
-            console.log('Parsed auth data:', authData);
-        } catch (error) {
-            console.error('JSON parse error:', error);
-            return res.status(400).json({
-                error: "Invalid JSON data"
-            });
-        }
-
-        const { email, password, name } = authData;
+        const { email, password, name } = req.body;
 
         // Validate required fields
         if (!email || !password || !name) {
@@ -112,38 +139,18 @@ app.post('/api/signup', upload.single('avatar'), async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Create GameLayer player
-        const headers = {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'api-key': API_KEY
-        };
-
         const requestBody = {
             player: email,
             name: name,
             account: ACCOUNT_ID
         };
 
-        // Add image URL if an image was uploaded
-        if (req.file) {
-            const base64Image = req.file.buffer.toString('base64');
-            requestBody.imgUrl = `data:${req.file.mimetype};base64,${base64Image}`;
-        }
-
-        const response = await fetch(`${API_BASE_URL}/players`, {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify(requestBody)
-        });
-
-        if (!response.ok) {
-            const data = await response.json();
-            console.error('GameLayer API error:', {
-                status: response.status,
-                statusText: response.statusText,
-                error: data
+        try {
+            await makeGameLayerRequest('/players', 'POST', requestBody);
+        } catch (error) {
+            return res.status(500).json({
+                error: "Failed to create player in GameLayer"
             });
-            return res.status(response.status).json(data);
         }
 
         // Store user data
@@ -171,27 +178,12 @@ app.post('/api/signup', upload.single('avatar'), async (req, res) => {
 // Sign in endpoint
 app.post('/api/signin', async (req, res) => {
     try {
-        console.log('Received signin request:', req.body);
+        console.log('Received signin request:', {
+            body: req.body,
+            headers: req.headers
+        });
 
-        if (!req.body || !req.body.data) {
-            console.error('Missing form data in request');
-            return res.status(400).json({
-                error: "Missing form data"
-            });
-        }
-
-        let authData;
-        try {
-            authData = JSON.parse(req.body.data);
-            console.log('Parsed auth data:', authData);
-        } catch (error) {
-            console.error('JSON parse error:', error);
-            return res.status(400).json({
-                error: "Invalid JSON data"
-            });
-        }
-
-        const { email, password } = authData;
+        const { email, password } = req.body;
 
         // Validate required fields
         if (!email || !password) {

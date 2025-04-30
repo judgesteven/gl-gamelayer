@@ -501,46 +501,35 @@
             }
 
             try {
-                // Create FormData
-                const formData = new FormData();
-                
-                // Add the authentication data
-                const authData = {
+                // Create the request data
+                const requestData = {
                     email: email,
                     password: password
                 };
 
                 if (isSignUp) {
-                    authData.name = playerName;
-                }
-
-                // Convert authData to JSON string and append to FormData
-                formData.append('data', JSON.stringify(authData));
-                
-                // If signing up and no custom file is uploaded, use the random avatar
-                if (isSignUp && !avatarFile && currentImageUrl) {
-                    const pngBlob = await svgToPng(currentImageUrl);
-                    formData.append('avatar', pngBlob, 'avatar.png');
-                } else if (isSignUp && avatarFile) {
-                    formData.append('avatar', avatarFile);
+                    requestData.name = playerName;
                 }
 
                 const endpoint = isSignUp ? '/api/signup' : '/api/signin';
                 console.log('Sending request to:', endpoint);
-                console.log('Form data:', Object.fromEntries(formData));
+                console.log('Request data:', requestData);
 
                 const response = await fetch(endpoint, {
                     method: 'POST',
-                    body: formData
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
                 });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'An error occurred');
-                }
 
                 const data = await response.json();
                 console.log('Response:', data);
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'An error occurred');
+                }
 
                 // Store the authentication token
                 localStorage.setItem('authToken', data.token);
