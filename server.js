@@ -87,7 +87,9 @@ async function makeGameLayerRequest(endpoint, method = 'GET', body = null) {
     const headers = {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'api-key': API_KEY
+        'api-key': API_KEY,
+        'x-api-key': API_KEY,
+        'Authorization': `Bearer ${API_KEY}`
     };
 
     const options = {
@@ -101,7 +103,7 @@ async function makeGameLayerRequest(endpoint, method = 'GET', body = null) {
 
     console.log(`Making ${method} request to GameLayer API:`, {
         url: `${API_BASE_URL}${endpoint}`,
-        headers: { ...headers, 'api-key': '***' },
+        headers: { ...headers, 'api-key': '***', 'x-api-key': '***', 'Authorization': '***' },
         body: body ? { ...body, imgUrl: body.imgUrl ? '[BASE64_IMAGE]' : undefined } : undefined
     });
 
@@ -116,7 +118,8 @@ async function makeGameLayerRequest(endpoint, method = 'GET', body = null) {
                 error: data,
                 headers: response.headers,
                 endpoint,
-                method
+                method,
+                requestHeaders: { ...headers, 'api-key': '***', 'x-api-key': '***', 'Authorization': '***' }
             });
 
             if (response.status === 401) {
@@ -144,7 +147,8 @@ app.get('/api/test-auth', async (req, res) => {
             hasApiKey: !!API_KEY,
             apiKeyLength: API_KEY ? API_KEY.length : 0,
             accountId: ACCOUNT_ID,
-            baseUrl: API_BASE_URL
+            baseUrl: API_BASE_URL,
+            apiKeyPrefix: API_KEY ? API_KEY.substring(0, 4) + '...' : null
         });
 
         const response = await makeGameLayerRequest('/players', 'GET');
@@ -607,6 +611,7 @@ app.get('/api/player/me', authenticateToken, async (req, res) => {
         
         // Return basic user data if GameLayer API fails
         if (!playerData) {
+            console.log('Using fallback player data for:', email);
             return res.json({
                 email: user.email,
                 name: user.name,
