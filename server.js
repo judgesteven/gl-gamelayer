@@ -44,11 +44,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
 // Helper function to make GameLayer API requests
-async function makeGameLayerRequest(endpoint, method = 'GET', body = null) {
+async function makeGameLayerRequest(method, endpoint, body = null) {
     const headers = {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'api-key': API_KEY
+        'x-api-key': API_KEY,
+        'x-account-id': ACCOUNT_ID
     };
 
     const options = {
@@ -62,8 +63,8 @@ async function makeGameLayerRequest(endpoint, method = 'GET', body = null) {
 
     console.log(`Making ${method} request to GameLayer API:`, {
         url: `${API_BASE_URL}${endpoint}`,
-        headers: { ...headers, 'api-key': '***' },
-        body: body ? { ...body, imgUrl: body.imgUrl ? '[BASE64_IMAGE]' : undefined } : undefined
+        headers: { ...headers, 'x-api-key': '***', 'x-account-id': '***' },
+        body: body ? { ...body, avatar: body.avatar ? '[BASE64_IMAGE]' : undefined } : undefined
     });
 
     try {
@@ -75,7 +76,6 @@ async function makeGameLayerRequest(endpoint, method = 'GET', body = null) {
                 status: response.status,
                 statusText: response.statusText,
                 error: data,
-                headers: response.headers,
                 endpoint,
                 method
             });
@@ -173,7 +173,7 @@ app.post('/api/create-player', upload.single('avatar'), async (req, res) => {
 app.get('/api/player/:id', async (req, res) => {
     try {
         const playerId = req.params.id;
-        const playerData = await makeGameLayerRequest(`/players/${playerId}`, 'GET');
+        const playerData = await makeGameLayerRequest('GET', `/players/${playerId}`);
         
         if (!playerData) {
             return res.status(404).json({
@@ -194,7 +194,7 @@ app.get('/api/player/:id', async (req, res) => {
 app.get('/api/missions/:id', async (req, res) => {
     try {
         const playerId = req.params.id;
-        const missions = await makeGameLayerRequest(`/missions?player=${playerId}`, 'GET');
+        const missions = await makeGameLayerRequest('GET', `/missions?player=${playerId}`);
         res.json(missions || []);
     } catch (error) {
         console.error('Server error:', error);
@@ -208,7 +208,7 @@ app.get('/api/missions/:id', async (req, res) => {
 app.get('/api/prizes/:id', async (req, res) => {
     try {
         const playerId = req.params.id;
-        const prizes = await makeGameLayerRequest(`/prizes?player=${playerId}`, 'GET');
+        const prizes = await makeGameLayerRequest('GET', `/prizes?player=${playerId}`);
         res.json(prizes || []);
     } catch (error) {
         console.error('Server error:', error);
@@ -221,7 +221,7 @@ app.get('/api/prizes/:id', async (req, res) => {
 // API endpoint to get rankings
 app.get('/api/rankings', async (req, res) => {
     try {
-        const rankings = await makeGameLayerRequest('/players', 'GET');
+        const rankings = await makeGameLayerRequest('GET', '/players');
         // Sort players by points in descending order
         const sortedRankings = (rankings || []).sort((a, b) => (b.points || 0) - (a.points || 0));
         res.json(sortedRankings);
