@@ -21,7 +21,8 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 console.log('Server configuration:', {
     API_BASE_URL,
     ACCOUNT_ID,
-    NODE_ENV: process.env.NODE_ENV
+    NODE_ENV: process.env.NODE_ENV,
+    hasApiKey: !!API_KEY
 });
 
 // Configure multer for image upload
@@ -84,7 +85,8 @@ async function makeGameLayerRequest(endpoint, method = 'GET', body = null) {
     const headers = {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'api-key': API_KEY
+        'api-key': API_KEY,
+        'x-api-key': API_KEY // Try both header formats
     };
 
     const options = {
@@ -98,7 +100,7 @@ async function makeGameLayerRequest(endpoint, method = 'GET', body = null) {
 
     console.log(`Making ${method} request to GameLayer API:`, {
         url: `${API_BASE_URL}${endpoint}`,
-        headers: { ...headers, 'api-key': '***' },
+        headers: { ...headers, 'api-key': '***', 'x-api-key': '***' },
         body: body ? { ...body, imgUrl: body.imgUrl ? '[BASE64_IMAGE]' : undefined } : undefined
     });
 
@@ -110,8 +112,14 @@ async function makeGameLayerRequest(endpoint, method = 'GET', body = null) {
             console.error('GameLayer API error:', {
                 status: response.status,
                 statusText: response.statusText,
-                error: data
+                error: data,
+                headers: response.headers
             });
+
+            if (response.status === 401) {
+                throw new Error('API authentication failed. Please check your API key.');
+            }
+
             throw new Error(data.error || 'API request failed');
         }
 
@@ -121,6 +129,19 @@ async function makeGameLayerRequest(endpoint, method = 'GET', body = null) {
         throw error;
     }
 }
+
+// Add a test endpoint to verify API key
+app.get('/api/test-auth', async (req, res) => {
+    try {
+        const response = await makeGameLayerRequest('/players', 'GET');
+        res.json({ message: 'API authentication successful', data: response });
+    } catch (error) {
+        res.status(500).json({ 
+            error: 'API authentication failed',
+            message: error.message
+        });
+    }
+});
 
 // Sign up endpoint
 app.post('/api/signup', upload.single('avatar'), async (req, res) => {
