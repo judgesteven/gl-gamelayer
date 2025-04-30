@@ -47,6 +47,17 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.use('/uploads', express.static('public/uploads'));
 
+// Add middleware to parse multipart/form-data
+app.use((req, res, next) => {
+    if (req.headers['content-type'] && req.headers['content-type'].includes('multipart/form-data')) {
+        // Let multer handle the request
+        next();
+    } else {
+        // Parse JSON or URL-encoded data
+        express.json()(req, res, next);
+    }
+});
+
 // In-memory user storage (replace with a database in production)
 const users = new Map();
 
@@ -225,7 +236,8 @@ app.post('/api/signin', async (req, res) => {
     try {
         console.log('Received signin request:', {
             body: req.body,
-            headers: req.headers
+            headers: req.headers,
+            contentType: req.headers['content-type']
         });
 
         // Check if we have form data
