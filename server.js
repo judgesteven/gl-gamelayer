@@ -270,27 +270,26 @@ app.post('/api/signin', async (req, res) => {
             });
         }
 
-        // Check if we have the data field
-        if (!req.body.data) {
-            console.error('Missing data field in request body:', req.body);
-            return res.status(400).json({
-                error: "Missing data field in request body"
-            });
+        let authData;
+        // Handle both JSON and form data
+        if (req.body.data) {
+            try {
+                authData = JSON.parse(req.body.data);
+            } catch (error) {
+                console.error('JSON parse error:', error);
+                return res.status(400).json({
+                    error: "Invalid JSON data in data field"
+                });
+            }
+        } else {
+            // Direct JSON data
+            authData = req.body;
         }
 
-        let authData;
-        try {
-            authData = JSON.parse(req.body.data);
-            console.log('Parsed auth data:', {
-                email: authData.email,
-                hasPassword: !!authData.password
-            });
-        } catch (error) {
-            console.error('JSON parse error:', error);
-            return res.status(400).json({
-                error: "Invalid JSON data in data field"
-            });
-        }
+        console.log('Parsed auth data:', {
+            email: authData.email,
+            hasPassword: !!authData.password
+        });
 
         const { email, password } = authData;
 
