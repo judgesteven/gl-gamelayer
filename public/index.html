@@ -368,7 +368,7 @@
     <div class="container">
         <div class="card">
             <div class="card-header">
-                <h1 id="authTitle">Sign Up</h1>
+                <h1 id="authTitle">New Player Sign Up</h1>
             </div>
             <div class="card-body">
                 <form id="authForm">
@@ -388,8 +388,8 @@
                     </div>
                     <div class="mb-3">
                         <label for="email" class="form-label">Email Address:</label>
-                        <input type="email" class="form-control" id="email" required>
-                        <div class="form-text">This will be your unique ID for GameLayer</div>
+                        <input type="email" class="form-control" id="email" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$">
+                        <div class="form-text">Unique player-id within GameLayer</div>
                     </div>
                     <div class="mb-3">
                         <label for="password" class="form-label">Password:</label>
@@ -404,7 +404,7 @@
                     <div class="mb-3" id="nameField">
                         <label for="playerName" class="form-label">Player Name:</label>
                         <input type="text" class="form-control" id="playerName" required>
-                        <div class="form-text">Your display name in the game</div>
+                        <div class="form-text">Display name</div>
                     </div>
                     <button type="submit" class="btn btn-primary" id="submitButton">Sign Up</button>
                     <div class="auth-toggle">
@@ -429,13 +429,13 @@
             const toggleText = document.getElementById('toggleAuth');
 
             if (isSignUp) {
-                title.textContent = 'Sign Up';
+                title.textContent = 'New Player Sign Up';
                 submitButton.textContent = 'Sign Up';
                 nameField.style.display = 'block';
                 avatarSection.style.display = 'block';
                 toggleText.textContent = 'Sign In';
             } else {
-                title.textContent = 'Sign In';
+                title.textContent = 'Existing Player Sign In';
                 submitButton.textContent = 'Sign In';
                 nameField.style.display = 'none';
                 avatarSection.style.display = 'none';
@@ -468,6 +468,13 @@
             const playerName = document.getElementById('playerName').value;
             const avatarFile = document.getElementById('avatarInput').files[0];
             const currentImageUrl = document.getElementById('avatarPreview').dataset.currentImage;
+
+            // Validate email format
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailRegex.test(email)) {
+                alert('Please enter a valid email address');
+                return;
+            }
 
             // Validate required fields
             if (!email || !password) {
