@@ -592,8 +592,14 @@ app.get('/api/player/me', authenticateToken, async (req, res) => {
             });
         } catch (error) {
             console.error('Error fetching player data:', error);
-            res.status(500).json({
-                error: "Failed to fetch player data"
+            // Return basic user data if GameLayer API fails
+            res.json({
+                email: user.email,
+                name: user.name,
+                points: 0,
+                missionsCompleted: 0,
+                rewardsClaimed: 0,
+                imgUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=default'
             });
         }
     } catch (error) {
@@ -614,9 +620,8 @@ app.get('/api/missions/me', authenticateToken, async (req, res) => {
             res.json(missions);
         } catch (error) {
             console.error('Error fetching missions:', error);
-            res.status(500).json({
-                error: "Failed to fetch missions"
-            });
+            // Return empty missions array if GameLayer API fails
+            res.json([]);
         }
     } catch (error) {
         console.error('Server error:', error);
@@ -636,9 +641,8 @@ app.get('/api/rankings', authenticateToken, async (req, res) => {
             res.json(sortedRankings);
         } catch (error) {
             console.error('Error fetching rankings:', error);
-            res.status(500).json({
-                error: "Failed to fetch rankings"
-            });
+            // Return empty rankings array if GameLayer API fails
+            res.json([]);
         }
     } catch (error) {
         console.error('Server error:', error);
@@ -658,9 +662,8 @@ app.get('/api/rewards/me', authenticateToken, async (req, res) => {
             res.json(rewards);
         } catch (error) {
             console.error('Error fetching rewards:', error);
-            res.status(500).json({
-                error: "Failed to fetch rewards"
-            });
+            // Return empty rewards array if GameLayer API fails
+            res.json([]);
         }
     } catch (error) {
         console.error('Server error:', error);

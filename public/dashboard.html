@@ -461,6 +461,16 @@
                 const missionsList = document.getElementById('missionsList');
                 missionsList.innerHTML = '';
 
+                if (data.length === 0) {
+                    missionsList.innerHTML = `
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i>
+                            No missions available at the moment.
+                        </div>
+                    `;
+                    return;
+                }
+
                 data.forEach(mission => {
                     const missionCard = document.createElement('div');
                     missionCard.className = 'card mission-card';
@@ -480,7 +490,13 @@
                 });
             } catch (error) {
                 console.error('Error loading missions:', error);
-                alert('Failed to load missions. Please try again.');
+                const missionsList = document.getElementById('missionsList');
+                missionsList.innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        Failed to load missions. Please try again later.
+                    </div>
+                `;
             }
         }
 
@@ -507,6 +523,16 @@
                 const rankingsList = document.getElementById('rankingsList');
                 rankingsList.innerHTML = '';
 
+                if (data.length === 0) {
+                    rankingsList.innerHTML = `
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i>
+                            No rankings available at the moment.
+                        </div>
+                    `;
+                    return;
+                }
+
                 data.forEach((player, index) => {
                     const rankingItem = document.createElement('div');
                     rankingItem.className = 'ranking-item';
@@ -523,7 +549,13 @@
                 });
             } catch (error) {
                 console.error('Error loading rankings:', error);
-                alert('Failed to load rankings. Please try again.');
+                const rankingsList = document.getElementById('rankingsList');
+                rankingsList.innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        Failed to load rankings. Please try again later.
+                    </div>
+                `;
             }
         }
 
@@ -550,6 +582,16 @@
                 const rewardsList = document.getElementById('rewardsList');
                 rewardsList.innerHTML = '';
 
+                if (data.length === 0) {
+                    rewardsList.innerHTML = `
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i>
+                            No rewards available at the moment.
+                        </div>
+                    `;
+                    return;
+                }
+
                 data.forEach(reward => {
                     const rewardCard = document.createElement('div');
                     rewardCard.className = 'card reward-card';
@@ -567,7 +609,13 @@
                 });
             } catch (error) {
                 console.error('Error loading rewards:', error);
-                alert('Failed to load rewards. Please try again.');
+                const rewardsList = document.getElementById('rewardsList');
+                rewardsList.innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        Failed to load rewards. Please try again later.
+                    </div>
+                `;
             }
         }
 
