@@ -549,12 +549,8 @@
 
                 if (response.ok) {
                     alert('Player created successfully!');
-                    // Reset form
-                    document.getElementById('playerForm').reset();
-                    // Set new random profile image
-                    const randomImage = profileImages[Math.floor(Math.random() * profileImages.length)];
-                    avatarPreview.innerHTML = `<img src="${randomImage}" alt="Default avatar">`;
-                    avatarPreview.dataset.currentImage = randomImage;
+                    // Redirect to dashboard
+                    window.location.href = `/dashboard.html?id=${playerId}`;
                 } else {
                     alert(`Error: ${data.error}`);
                 }
