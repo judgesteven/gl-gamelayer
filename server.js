@@ -121,13 +121,23 @@ app.post('/api/signup', upload.single('avatar'), async (req, res) => {
                 originalname: req.file.originalname,
                 mimetype: req.file.mimetype,
                 size: req.file.size
-            } : null
+            } : null,
+            headers: req.headers
         });
 
-        if (!req.body || !req.body.data) {
-            console.error('Missing form data in request');
+        // Check if we have form data
+        if (!req.body) {
+            console.error('No request body received');
             return res.status(400).json({
-                error: "Missing form data"
+                error: "No request body received"
+            });
+        }
+
+        // Check if we have the data field
+        if (!req.body.data) {
+            console.error('Missing data field in request body:', req.body);
+            return res.status(400).json({
+                error: "Missing data field in request body"
             });
         }
 
@@ -142,7 +152,7 @@ app.post('/api/signup', upload.single('avatar'), async (req, res) => {
         } catch (error) {
             console.error('JSON parse error:', error);
             return res.status(400).json({
-                error: "Invalid JSON data"
+                error: "Invalid JSON data in data field"
             });
         }
 
@@ -182,6 +192,7 @@ app.post('/api/signup', upload.single('avatar'), async (req, res) => {
         try {
             await makeGameLayerRequest('/players', 'POST', requestBody);
         } catch (error) {
+            console.error('GameLayer API error:', error);
             return res.status(500).json({
                 error: "Failed to create player in GameLayer"
             });
@@ -217,10 +228,19 @@ app.post('/api/signin', async (req, res) => {
             headers: req.headers
         });
 
-        if (!req.body || !req.body.data) {
-            console.error('Missing form data in request');
+        // Check if we have form data
+        if (!req.body) {
+            console.error('No request body received');
             return res.status(400).json({
-                error: "Missing form data"
+                error: "No request body received"
+            });
+        }
+
+        // Check if we have the data field
+        if (!req.body.data) {
+            console.error('Missing data field in request body:', req.body);
+            return res.status(400).json({
+                error: "Missing data field in request body"
             });
         }
 
@@ -234,7 +254,7 @@ app.post('/api/signin', async (req, res) => {
         } catch (error) {
             console.error('JSON parse error:', error);
             return res.status(400).json({
-                error: "Invalid JSON data"
+                error: "Invalid JSON data in data field"
             });
         }
 
