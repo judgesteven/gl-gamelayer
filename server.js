@@ -22,7 +22,8 @@ console.log('Server configuration:', {
     API_BASE_URL,
     ACCOUNT_ID,
     NODE_ENV: process.env.NODE_ENV,
-    hasApiKey: !!API_KEY
+    hasApiKey: !!API_KEY,
+    apiKeyLength: API_KEY ? API_KEY.length : 0
 });
 
 // Configure multer for image upload
@@ -71,13 +72,14 @@ const authenticateToken = (req, res, next) => {
         return res.status(401).json({ error: 'Authentication token required' });
     }
 
-    jwt.verify(token, JWT_SECRET, (err, user) => {
-        if (err) {
-            return res.status(403).json({ error: 'Invalid or expired token' });
-        }
+    try {
+        const user = jwt.verify(token, JWT_SECRET);
         req.user = user;
         next();
-    });
+    } catch (err) {
+        console.error('Token verification error:', err);
+        return res.status(401).json({ error: 'Invalid or expired token' });
+    }
 };
 
 // Helper function to make GameLayer API requests
@@ -85,8 +87,7 @@ async function makeGameLayerRequest(endpoint, method = 'GET', body = null) {
     const headers = {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'api-key': API_KEY,
-        'x-api-key': API_KEY // Try both header formats
+        'api-key': API_KEY
     };
 
     const options = {
@@ -100,7 +101,7 @@ async function makeGameLayerRequest(endpoint, method = 'GET', body = null) {
 
     console.log(`Making ${method} request to GameLayer API:`, {
         url: `${API_BASE_URL}${endpoint}`,
-        headers: { ...headers, 'api-key': '***', 'x-api-key': '***' },
+        headers: { ...headers, 'api-key': '***' },
         body: body ? { ...body, imgUrl: body.imgUrl ? '[BASE64_IMAGE]' : undefined } : undefined
     });
 
@@ -113,27 +114,46 @@ async function makeGameLayerRequest(endpoint, method = 'GET', body = null) {
                 status: response.status,
                 statusText: response.statusText,
                 error: data,
-                headers: response.headers
+                headers: response.headers,
+                endpoint,
+                method
             });
 
             if (response.status === 401) {
-                throw new Error('API authentication failed. Please check your API key.');
+                console.error('API Key validation failed. Please check your API key configuration.');
+                // Return null instead of throwing to prevent server crash
+                return null;
             }
 
-            throw new Error(data.error || 'API request failed');
+            // For other errors, return null instead of throwing
+            return null;
         }
 
         return data;
     } catch (error) {
         console.error('GameLayer API request failed:', error);
-        throw error;
+        // Return null instead of throwing to prevent server crash
+        return null;
     }
 }
 
 // Add a test endpoint to verify API key
 app.get('/api/test-auth', async (req, res) => {
     try {
+        console.log('Testing API key configuration:', {
+            hasApiKey: !!API_KEY,
+            apiKeyLength: API_KEY ? API_KEY.length : 0,
+            accountId: ACCOUNT_ID,
+            baseUrl: API_BASE_URL
+        });
+
         const response = await makeGameLayerRequest('/players', 'GET');
+        if (response === null) {
+            return res.status(401).json({ 
+                error: 'API authentication failed',
+                message: 'Please check your API key configuration'
+            });
+        }
         res.json({ message: 'API authentication successful', data: response });
     } catch (error) {
         res.status(500).json({ 
@@ -583,17 +603,11 @@ app.get('/api/player/me', authenticateToken, async (req, res) => {
         }
 
         // Get player data from GameLayer
-        try {
-            const playerData = await makeGameLayerRequest(`/players/${email}`, 'GET');
-            res.json({
-                ...playerData,
-                email: user.email,
-                name: user.name
-            });
-        } catch (error) {
-            console.error('Error fetching player data:', error);
-            // Return basic user data if GameLayer API fails
-            res.json({
+        const playerData = await makeGameLayerRequest(`/players/${email}`, 'GET');
+        
+        // Return basic user data if GameLayer API fails
+        if (!playerData) {
+            return res.json({
                 email: user.email,
                 name: user.name,
                 points: 0,
@@ -602,6 +616,12 @@ app.get('/api/player/me', authenticateToken, async (req, res) => {
                 imgUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=default'
             });
         }
+
+        res.json({
+            ...playerData,
+            email: user.email,
+            name: user.name
+        });
     } catch (error) {
         console.error('Server error:', error);
         res.status(500).json({ 
@@ -614,15 +634,8 @@ app.get('/api/player/me', authenticateToken, async (req, res) => {
 app.get('/api/missions/me', authenticateToken, async (req, res) => {
     try {
         const email = req.user.email;
-        
-        try {
-            const missions = await makeGameLayerRequest(`/missions?player=${email}`, 'GET');
-            res.json(missions);
-        } catch (error) {
-            console.error('Error fetching missions:', error);
-            // Return empty missions array if GameLayer API fails
-            res.json([]);
-        }
+        const missions = await makeGameLayerRequest(`/missions?player=${email}`, 'GET');
+        res.json(missions || []);
     } catch (error) {
         console.error('Server error:', error);
         res.status(500).json({ 
@@ -634,16 +647,10 @@ app.get('/api/missions/me', authenticateToken, async (req, res) => {
 // API endpoint to get rankings
 app.get('/api/rankings', authenticateToken, async (req, res) => {
     try {
-        try {
-            const rankings = await makeGameLayerRequest('/players', 'GET');
-            // Sort players by points in descending order
-            const sortedRankings = rankings.sort((a, b) => (b.points || 0) - (a.points || 0));
-            res.json(sortedRankings);
-        } catch (error) {
-            console.error('Error fetching rankings:', error);
-            // Return empty rankings array if GameLayer API fails
-            res.json([]);
-        }
+        const rankings = await makeGameLayerRequest('/players', 'GET');
+        // Sort players by points in descending order
+        const sortedRankings = (rankings || []).sort((a, b) => (b.points || 0) - (a.points || 0));
+        res.json(sortedRankings);
     } catch (error) {
         console.error('Server error:', error);
         res.status(500).json({ 
@@ -656,15 +663,8 @@ app.get('/api/rankings', authenticateToken, async (req, res) => {
 app.get('/api/rewards/me', authenticateToken, async (req, res) => {
     try {
         const email = req.user.email;
-        
-        try {
-            const rewards = await makeGameLayerRequest(`/prizes?player=${email}`, 'GET');
-            res.json(rewards);
-        } catch (error) {
-            console.error('Error fetching rewards:', error);
-            // Return empty rewards array if GameLayer API fails
-            res.json([]);
-        }
+        const rewards = await makeGameLayerRequest(`/prizes?player=${email}`, 'GET');
+        res.json(rewards || []);
     } catch (error) {
         console.error('Server error:', error);
         res.status(500).json({ 

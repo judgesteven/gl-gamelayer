@@ -418,8 +418,8 @@
                 }
 
                 // Update profile section
-                document.getElementById('playerName').textContent = data.name;
-                document.getElementById('playerEmail').textContent = data.email;
+                document.getElementById('playerName').textContent = data.name || 'Player';
+                document.getElementById('playerEmail').textContent = data.email || 'No email';
                 document.getElementById('profileAvatar').src = data.imgUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=default';
                 
                 // Update stats
@@ -428,13 +428,13 @@
                 document.getElementById('rewardsClaimed').textContent = data.rewardsClaimed || '0';
             } catch (error) {
                 console.error('Error loading player data:', error);
-                if (error.message.includes('Failed to load player data')) {
-                    alert('Failed to load player data. Please try again.');
-                } else {
-                    alert('Session expired. Please sign in again.');
-                    localStorage.removeItem('token');
-                    window.location.href = '/';
-                }
+                // Show error message but don't redirect
+                document.getElementById('playerName').textContent = 'Error Loading Data';
+                document.getElementById('playerEmail').textContent = 'Please try again later';
+                document.getElementById('profileAvatar').src = 'https://api.dicebear.com/7.x/avataaars/svg?seed=error';
+                document.getElementById('totalPoints').textContent = '0';
+                document.getElementById('missionsCompleted').textContent = '0';
+                document.getElementById('rewardsClaimed').textContent = '0';
             }
         }
 
@@ -461,7 +461,7 @@
                 const missionsList = document.getElementById('missionsList');
                 missionsList.innerHTML = '';
 
-                if (data.length === 0) {
+                if (!data || data.length === 0) {
                     missionsList.innerHTML = `
                         <div class="alert alert-info">
                             <i class="bi bi-info-circle"></i>
@@ -479,10 +479,10 @@
                             <i class="bi bi-flag"></i>
                         </div>
                         <div class="mission-info">
-                            <h3>${mission.name}</h3>
-                            <p>${mission.description}</p>
+                            <h3>${mission.name || 'Unnamed Mission'}</h3>
+                            <p>${mission.description || 'No description available'}</p>
                             <div class="mission-progress">
-                                <div class="mission-progress-bar" style="width: ${mission.progress}%"></div>
+                                <div class="mission-progress-bar" style="width: ${mission.progress || 0}%"></div>
                             </div>
                         </div>
                     `;
@@ -523,7 +523,7 @@
                 const rankingsList = document.getElementById('rankingsList');
                 rankingsList.innerHTML = '';
 
-                if (data.length === 0) {
+                if (!data || data.length === 0) {
                     rankingsList.innerHTML = `
                         <div class="alert alert-info">
                             <i class="bi bi-info-circle"></i>
@@ -538,12 +538,12 @@
                     rankingItem.className = 'ranking-item';
                     rankingItem.innerHTML = `
                         <div class="ranking-position">${index + 1}</div>
-                        <img src="${player.imgUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=default'}" alt="${player.name}" class="ranking-avatar">
+                        <img src="${player.imgUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=default'}" alt="${player.name || 'Player'}" class="ranking-avatar">
                         <div class="ranking-info">
-                            <h3>${player.name}</h3>
-                            <p>${player.email}</p>
+                            <h3>${player.name || 'Unnamed Player'}</h3>
+                            <p>${player.email || 'No email'}</p>
                         </div>
-                        <div class="ranking-score">${player.points} pts</div>
+                        <div class="ranking-score">${player.points || 0} pts</div>
                     `;
                     rankingsList.appendChild(rankingItem);
                 });
@@ -582,7 +582,7 @@
                 const rewardsList = document.getElementById('rewardsList');
                 rewardsList.innerHTML = '';
 
-                if (data.length === 0) {
+                if (!data || data.length === 0) {
                     rewardsList.innerHTML = `
                         <div class="alert alert-info">
                             <i class="bi bi-info-circle"></i>
@@ -600,10 +600,10 @@
                             <i class="bi bi-gift"></i>
                         </div>
                         <div class="reward-info">
-                            <h3>${reward.name}</h3>
-                            <p>${reward.description}</p>
+                            <h3>${reward.name || 'Unnamed Reward'}</h3>
+                            <p>${reward.description || 'No description available'}</p>
                         </div>
-                        <span class="reward-status ${reward.status.toLowerCase()}">${reward.status}</span>
+                        <span class="reward-status ${(reward.status || 'locked').toLowerCase()}">${reward.status || 'Locked'}</span>
                     `;
                     rewardsList.appendChild(rewardCard);
                 });
