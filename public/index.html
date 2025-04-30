@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="Logo_Red.png">
+    <link rel="shortcut icon" type="image/png" href="Logo_Red.png">
     <title>GameLayer Player Creation</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
@@ -356,11 +357,6 @@
                         <input type="text" class="form-control" id="playerName" required>
                         <div class="form-text">Display name for the player</div>
                     </div>
-                    <div class="mb-3">
-                        <label for="playerEmail" class="form-label">Email Address (Optional):</label>
-                        <input type="email" class="form-control" id="playerEmail">
-                        <div class="form-text">Auth0 sign-in credentials</div>
-                    </div>
                     <button type="submit" class="btn btn-primary">Create Player</button>
                 </form>
             </div>
@@ -515,7 +511,6 @@
             
             const playerId = document.getElementById('playerId').value;
             const playerName = document.getElementById('playerName').value;
-            const playerEmail = document.getElementById('playerEmail').value;
             const avatarFile = document.getElementById('avatarInput').files[0];
             const currentImageUrl = avatarPreview.dataset.currentImage;
 
@@ -532,8 +527,7 @@
             const playerData = {
                 player: playerId,
                 name: playerName,
-                account: ACCOUNT_ID,
-                email: playerEmail || undefined
+                account: ACCOUNT_ID
             };
             formData.append('data', JSON.stringify(playerData));
             
