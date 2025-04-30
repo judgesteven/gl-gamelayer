@@ -11,11 +11,5 @@
       "src": "/(.*)",
       "dest": "server.js"
     }
-  ],
-  "env": {
-    "GAMELAYER_API_KEY": "9567d1ba99b22b84ee2c27cadb56fde7",
-    "GAMELAYER_ACCOUNT_ID": "ai-test",
-    "GAMELAYER_API_BASE_URL": "https://api.gamelayer.co/api/v0",
-    "JWT_SECRET": "your-secret-key"
-  }
+  ]
 } 
