@@ -532,7 +532,12 @@
 
                 const endpoint = isSignUp ? '/api/signup' : '/api/signin';
                 console.log('Sending request to:', endpoint);
-                console.log('Form data:', Object.fromEntries(formData));
+                console.log('Form data:', {
+                    email: email,
+                    password: '***',
+                    name: isSignUp ? playerName : undefined,
+                    hasAvatar: isSignUp && (avatarFile || currentImageUrl)
+                });
 
                 const response = await fetch(endpoint, {
                     method: 'POST',

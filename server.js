@@ -134,7 +134,11 @@ app.post('/api/signup', upload.single('avatar'), async (req, res) => {
         let authData;
         try {
             authData = JSON.parse(req.body.data);
-            console.log('Parsed auth data:', authData);
+            console.log('Parsed auth data:', {
+                email: authData.email,
+                hasPassword: !!authData.password,
+                name: authData.name
+            });
         } catch (error) {
             console.error('JSON parse error:', error);
             return res.status(400).json({
@@ -213,7 +217,28 @@ app.post('/api/signin', async (req, res) => {
             headers: req.headers
         });
 
-        const { email, password } = req.body;
+        if (!req.body || !req.body.data) {
+            console.error('Missing form data in request');
+            return res.status(400).json({
+                error: "Missing form data"
+            });
+        }
+
+        let authData;
+        try {
+            authData = JSON.parse(req.body.data);
+            console.log('Parsed auth data:', {
+                email: authData.email,
+                hasPassword: !!authData.password
+            });
+        } catch (error) {
+            console.error('JSON parse error:', error);
+            return res.status(400).json({
+                error: "Invalid JSON data"
+            });
+        }
+
+        const { email, password } = authData;
 
         // Validate required fields
         if (!email || !password) {
