@@ -259,7 +259,7 @@ app.get('/api/players/:uid', async (req, res) => {
 });
 
 // Start the server
-const server = app.listen(port, () => {
+const server = app.listen(port, '0.0.0.0', () => {
     console.log(`Server running at http://localhost:${port}`);
 }).on('error', (error) => {
     console.error('Server error:', error);
@@ -288,15 +288,13 @@ process.on('SIGINT', () => {
 // Handle uncaught exceptions
 process.on('uncaughtException', (error) => {
     console.error('Uncaught Exception:', error);
-    server.close(() => {
-        process.exit(1);
-    });
+    // Don't exit on uncaught exceptions
 });
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-    // Don't exit on unhandled rejections, just log them
+    // Don't exit on unhandled rejections
 });
 
 // Keep the process alive
