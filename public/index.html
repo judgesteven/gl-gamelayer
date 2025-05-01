@@ -554,7 +554,7 @@
 
                             const data = await response.json();
 
-                            if (response.ok) {
+                            if (response.ok && data) {
                                 alert('Welcome back, ' + data.name + '!');
                                 // Here you would typically redirect to the dashboard or home page
                             } else {
@@ -568,7 +568,11 @@
                             }
                         } catch (error) {
                             console.error('Error:', error);
-                            alert(error.message || 'An error occurred. Please try again.');
+                            if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                                alert('Invalid email or password. Please try again.');
+                            } else {
+                                alert(error.message || 'An error occurred. Please try again.');
+                            }
                         }
                     });
 

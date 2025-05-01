@@ -167,13 +167,6 @@ app.post('/api/sign-in', async (req, res) => {
             headers: headers
         });
 
-        if (response.status === 404) {
-            return res.status(404).json({
-                error: "Player not found",
-                errorCode: 404
-            });
-        }
-
         const data = await response.json();
 
         if (!response.ok) {
@@ -182,9 +175,18 @@ app.post('/api/sign-in', async (req, res) => {
                 statusText: response.statusText,
                 error: data
             });
+            
+            if (response.status === 404) {
+                return res.status(404).json({
+                    error: "Player not found",
+                    errorCode: 404
+                });
+            }
+            
             return res.status(response.status).json(data);
         }
 
+        // If we get here, the player exists
         res.status(200).json(data);
     } catch (error) {
         console.error('Server error:', error);
