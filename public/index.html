@@ -305,6 +305,31 @@
             margin-bottom: 1.5rem !important;
         }
 
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+            background-color: transparent;
+            padding: 0.75rem 2rem;
+            border-radius: 24px;
+            font-weight: 600;
+            transition: var(--transition);
+            font-size: 0.95rem;
+            width: auto;
+            min-width: 120px;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+
+        .text-muted {
+            color: var(--text-secondary) !important;
+            font-size: 0.9rem;
+        }
+
         @media (max-width: 576px) {
             .container {
                 max-width: 100%;
@@ -359,6 +384,10 @@
                     </div>
                     <button type="submit" class="btn btn-primary">Create Player</button>
                 </form>
+                <div class="mt-4 text-center">
+                    <p class="text-muted mb-2">Already have an account?</p>
+                    <button type="button" class="btn btn-outline-primary" id="signInBtn">Sign In</button>
+                </div>
             </div>
         </div>
     </div>
@@ -583,6 +612,16 @@
         // Set default time to 00:00
         timeSelect.value = '00:00';
         updateRefreshOffset();
+
+        // Handle sign in button click
+        document.getElementById('signInBtn').addEventListener('click', function() {
+            const email = prompt('Please enter your email address:');
+            if (email) {
+                // Here you would typically make an API call to verify the email
+                // For now, we'll just show a message
+                alert('Sign in functionality will be implemented soon!');
+            }
+        });
     </script>
 </body>
 </html> 
