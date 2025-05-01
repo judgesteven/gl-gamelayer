@@ -539,11 +539,14 @@
                         const password = document.getElementById('signInPassword').value;
                         
                         try {
+                            console.log('Attempting Firebase sign-in for:', email);
                             // First sign in with Firebase
                             const userCredential = await signInWithEmailAndPassword(auth, email, password);
                             const user = userCredential.user;
+                            console.log('Firebase sign-in successful');
                             
                             // Then verify the GameLayer account exists
+                            console.log('Checking GameLayer account');
                             const response = await fetch('/api/sign-in', {
                                 method: 'POST',
                                 headers: {
@@ -552,12 +555,16 @@
                                 body: JSON.stringify({ email: user.email })
                             });
 
+                            console.log('GameLayer API response status:', response.status);
                             const data = await response.json();
+                            console.log('GameLayer API response data:', data);
 
                             if (response.ok && data) {
+                                console.log('Sign-in successful');
                                 alert('Welcome back, ' + data.name + '!');
                                 // Here you would typically redirect to the dashboard or home page
                             } else {
+                                console.log('GameLayer account not found, signing out from Firebase');
                                 // If GameLayer account doesn't exist, sign out from Firebase
                                 await signOut(auth);
                                 alert('Account not found. Please create a new account.');
@@ -567,7 +574,7 @@
                                 playerForm.style.display = 'block';
                             }
                         } catch (error) {
-                            console.error('Error:', error);
+                            console.error('Sign-in error:', error);
                             if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
                                 alert('Invalid email or password. Please try again.');
                             } else {

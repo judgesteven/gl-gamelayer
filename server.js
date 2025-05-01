@@ -144,11 +144,14 @@ app.post('/api/sign-in', async (req, res) => {
         const { email } = req.body;
         
         if (!email) {
+            console.log('Sign-in attempt with no email provided');
             return res.status(400).json({
                 error: "Email is required",
                 errorCode: 400
             });
         }
+
+        console.log('Attempting to sign in user:', email);
 
         const headers = {
             'Content-Type': 'application/json',
@@ -156,18 +159,21 @@ app.post('/api/sign-in', async (req, res) => {
             'api-key': API_KEY
         };
 
+        const apiUrl = `${API_BASE_URL}/accounts/${ACCOUNT_ID}/players/${email}`;
         console.log('Making request to GameLayer API:', {
-            url: `${API_BASE_URL}/accounts/${ACCOUNT_ID}/players/${email}`,
+            url: apiUrl,
             headers: headers
         });
 
         // Check if player exists
-        const response = await fetch(`${API_BASE_URL}/accounts/${ACCOUNT_ID}/players/${email}`, {
+        const response = await fetch(apiUrl, {
             method: 'GET',
             headers: headers
         });
 
+        console.log('GameLayer API response status:', response.status);
         const data = await response.json();
+        console.log('GameLayer API response data:', data);
 
         if (!response.ok) {
             console.error('GameLayer API error:', {
@@ -177,6 +183,7 @@ app.post('/api/sign-in', async (req, res) => {
             });
             
             if (response.status === 404) {
+                console.log('Player not found in GameLayer');
                 return res.status(404).json({
                     error: "Player not found",
                     errorCode: 404
@@ -187,9 +194,10 @@ app.post('/api/sign-in', async (req, res) => {
         }
 
         // If we get here, the player exists
+        console.log('Player found in GameLayer:', data);
         res.status(200).json(data);
     } catch (error) {
-        console.error('Server error:', error);
+        console.error('Server error during sign-in:', error);
         res.status(500).json({ 
             error: error.message,
             errorCode: 500
