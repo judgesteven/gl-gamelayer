@@ -213,6 +213,11 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// Serve the profile page
+app.get('/profile', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'profile.html'));
+});
+
 // For Vercel deployment
 if (process.env.NODE_ENV !== 'production') {
     const server = app.listen(port, () => {

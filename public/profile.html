@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="Logo_Red.png">
+    <link rel="shortcut icon" type="image/png" href="Logo_Red.png">
+    <title>GameLayer Player Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAx4yXgJfL_5r4Uk-7CRla1CZUuyyFOeow",
+            authDomain: "ai-testing-f3b39.firebaseapp.com",
+            projectId: "ai-testing-f3b39",
+            storageBucket: "ai-testing-f3b39.appspot.com",
+            messagingSenderId: "270761158142",
+            appId: "1:270761158142:web:0abfcae0ded29a34c3ccaf",
+            measurementId: "G-HFS59FNZZZ"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth(app);
+
+        // Make auth available globally
+        window.auth = auth;
+        window.signOut = signOut;
+
+        // Check authentication state
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                console.log('User is signed in:', user.email);
+                // Fetch player data from GameLayer
+                try {
+                    const response = await fetch('/api/sign-in', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ email: user.email })
+                    });
+
+                    const data = await response.json();
+                    if (response.ok && data) {
+                        // Update profile information
+                        document.getElementById('playerName').textContent = data.name;
+                        document.getElementById('playerEmail').textContent = data.player;
+                        if (data.imgUrl) {
+                            document.getElementById('playerAvatar').src = data.imgUrl;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error fetching player data:', error);
+                }
+            } else {
+                console.log('No user is signed in');
+                // Redirect to login page
+                window.location.href = '/';
+            }
+        });
+    </script>
+    <style>
+        :root {
+            --primary-color: #6366F1;
+            --primary-hover: #4F46E5;
+            --secondary-color: #1E293B;
+            --accent-color: #F43F5E;
+            --light-bg: #F8FAFC;
+            --dark-bg: #0F172A;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --text-primary: #1E293B;
+            --text-secondary: #64748B;
+            --border-radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .card {
+            border: none;
+            border-radius: var(--border-radius);
+            background-color: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
+            width: 100%;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            background: rgba(0, 0, 0, 0.05);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .card-header h1 {
+            color: var(--text-primary);
+            font-weight: 700;
+            margin: 0;
+            font-size: 1.5rem;
+            letter-spacing: -0.5px;
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary-color);
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.2);
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-email {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .btn-signout {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 24px;
+            font-weight: 600;
+            transition: var(--transition);
+            font-size: 0.95rem;
+        }
+
+        .btn-signout:hover {
+            background-color: #e11d48;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(244, 63, 94, 0.2);
+        }
+
+        @media (max-width: 576px) {
+            .container {
+                max-width: 100%;
+                padding: 0 1rem;
+            }
+            
+            .profile-section {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .profile-avatar {
+                width: 120px;
+                height: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h1>Player Profile</h1>
+            </div>
+            <div class="card-body">
+                <div class="profile-section">
+                    <img id="playerAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=default" alt="Player Avatar" class="profile-avatar">
+                    <div class="profile-info">
+                        <h2 id="playerName" class="profile-name">Loading...</h2>
+                        <p id="playerEmail" class="profile-email">Loading...</p>
+                        <button onclick="handleSignOut()" class="btn-signout">Sign Out</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function handleSignOut() {
+            try {
+                await signOut(auth);
+                window.location.href = '/';
+            } catch (error) {
+                console.error('Error signing out:', error);
+                alert('Error signing out. Please try again.');
+            }
+        }
+    </script>
+</body>
+</html> 
