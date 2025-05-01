@@ -311,4 +311,9 @@ process.on('warning', (warning) => {
     console.warn(warning);
 });
 
+// Keep the process alive
+setInterval(() => {
+    // This keeps the event loop running
+}, 1000);
+
 module.exports = app; 
