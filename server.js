@@ -156,7 +156,7 @@ app.post('/api/sign-in', async (req, res) => {
         const headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
-            'x-api-key': API_KEY
+            'api-key': API_KEY
         };
 
         const apiUrl = `${API_BASE_URL}/accounts/${ACCOUNT_ID}/players/${email}`;
@@ -164,7 +164,7 @@ app.post('/api/sign-in', async (req, res) => {
             url: apiUrl,
             headers: {
                 ...headers,
-                'x-api-key': '***'
+                'api-key': '***'
             }
         });
 
