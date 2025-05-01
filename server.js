@@ -10,9 +10,9 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // API Configuration
-const API_KEY = process.env.GAMELAYER_API_KEY || '9567d1ba99b22b84ee2c27cadb56fde7';
-const ACCOUNT_ID = process.env.GAMELAYER_ACCOUNT_ID || 'ai-test';
-const API_BASE_URL = process.env.GAMELAYER_API_BASE_URL || 'https://api.gamelayer.co/api/v0';
+const API_KEY = '9567d1ba99b22b84ee2c27cadb56fde7';
+const ACCOUNT_ID = 'ai-test';
+const API_BASE_URL = 'https://api.gamelayer.co/api/v0';
 
 // Configure multer for image upload
 const storage = multer.memoryStorage();
