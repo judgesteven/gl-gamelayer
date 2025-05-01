@@ -614,12 +614,30 @@
         updateRefreshOffset();
 
         // Handle sign in button click
-        document.getElementById('signInBtn').addEventListener('click', function() {
+        document.getElementById('signInBtn').addEventListener('click', async function() {
             const email = prompt('Please enter your email address:');
             if (email) {
-                // Here you would typically make an API call to verify the email
-                // For now, we'll just show a message
-                alert('Sign in functionality will be implemented soon!');
+                try {
+                    const response = await fetch('/api/sign-in', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ email })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        alert('Welcome back, ' + data.name + '!');
+                        // Here you would typically redirect to the dashboard or home page
+                    } else {
+                        alert(data.error || 'Sign in failed. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
+                }
             }
         });
     </script>

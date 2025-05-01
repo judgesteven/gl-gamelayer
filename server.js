@@ -127,6 +127,58 @@ app.post('/api/create-player', upload.single('avatar'), async (req, res) => {
     }
 });
 
+// API endpoint to sign in
+app.post('/api/sign-in', async (req, res) => {
+    try {
+        const { email } = req.body;
+        
+        if (!email) {
+            return res.status(400).json({
+                error: "Email is required",
+                errorCode: 400
+            });
+        }
+
+        const headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'api-key': API_KEY
+        };
+
+        // Check if player exists
+        const response = await fetch(`${API_BASE_URL}/players/${email}`, {
+            method: 'GET',
+            headers: headers
+        });
+
+        if (response.status === 404) {
+            return res.status(404).json({
+                error: "Player not found",
+                errorCode: 404
+            });
+        }
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            console.error('GameLayer API error:', {
+                status: response.status,
+                statusText: response.statusText,
+                error: data
+            });
+            return res.status(response.status).json(data);
+        }
+
+        res.status(200).json(data);
+    } catch (error) {
+        console.error('Server error:', error);
+        res.status(500).json({ 
+            error: error.message,
+            errorCode: 500
+        });
+    }
+});
+
 // Serve the main page
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
