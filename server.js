@@ -302,4 +302,13 @@ process.on('unhandledRejection', (reason, promise) => {
 // Keep the process alive
 process.stdin.resume();
 
+// Handle the punycode deprecation warning
+process.on('warning', (warning) => {
+    if (warning.name === 'DeprecationWarning' && warning.message.includes('punycode')) {
+        // Ignore the punycode deprecation warning
+        return;
+    }
+    console.warn(warning);
+});
+
 module.exports = app; 
