@@ -61,23 +61,11 @@ app.post('/api/create-player', upload.single('avatar'), async (req, res) => {
             });
         }
 
-        // Validate refresh offset format if provided
-        if (playerData.refreshOffset) {
-            const offsetRegex = /^UTC[+-]([0-1][0-9]|2[0-4]):[0-5][0-9]$/;
-            if (!offsetRegex.test(playerData.refreshOffset)) {
-                return res.status(400).json({
-                    error: "Invalid refresh offset format. Must be in format UTC±HH:MM",
-                    errorCode: 400
-                });
-            }
-        }
-
         // Create the request body
         const requestBody = {
             player: player,
             name: name,
-            account: ACCOUNT_ID,
-            refreshOffset: playerData.refreshOffset || undefined
+            account: ACCOUNT_ID
         };
 
         // Add image URL if an image was uploaded
@@ -92,13 +80,6 @@ app.post('/api/create-player', upload.single('avatar'), async (req, res) => {
             'Accept': 'application/json',
             'x-api-key': API_KEY
         };
-
-        console.log('Sending request to GameLayer:', {
-            url: `${API_BASE_URL}/players`,
-            method: 'POST',
-            headers: headers,
-            body: requestBody
-        });
 
         const response = await fetch(`${API_BASE_URL}/players`, {
             method: 'POST',

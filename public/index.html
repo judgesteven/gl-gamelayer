@@ -562,13 +562,6 @@
                 }
             }
 
-            // Validate refresh offset format
-            function validateRefreshOffset(offset) {
-                if (!offset) return true;
-                const offsetRegex = /^UTC[+-]([0-1][0-9]|2[0-4]):[0-5][0-9]$/;
-                return offsetRegex.test(offset);
-            }
-
             // Handle avatar upload
             const avatarInput = document.getElementById('avatarInput');
 
@@ -655,26 +648,6 @@
                     alert('Error creating player. Please try again.');
                 }
             });
-
-            // Update hidden input when time changes
-            const timeSelect = document.getElementById('timeSelect');
-            const refreshOffsetInput = document.getElementById('refreshOffset');
-
-            function updateRefreshOffset() {
-                const time = timeSelect.value;
-                if (time) {
-                    const [hours, minutes] = time.split(':');
-                    refreshOffsetInput.value = `UTC+${hours}:${minutes}`;
-                } else {
-                    refreshOffsetInput.value = '';
-                }
-            }
-
-            timeSelect.addEventListener('change', updateRefreshOffset);
-
-            // Set default time to 00:00
-            timeSelect.value = '00:00';
-            updateRefreshOffset();
         });
     </script>
 </body>
