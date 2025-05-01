@@ -249,21 +249,19 @@ app.get('/api/players/:email', async (req, res) => {
 // Start the server
 const server = app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
-});
-
-// Handle server errors
-server.on('error', (error) => {
+}).on('error', (error) => {
     console.error('Server error:', error);
     if (error.code === 'EADDRINUSE') {
         console.error(`Port ${port} is already in use. Please try a different port.`);
     }
 });
 
-// Handle process termination
+// Keep the process running
 process.on('SIGTERM', () => {
     console.log('SIGTERM signal received: closing HTTP server');
     server.close(() => {
         console.log('HTTP server closed');
+        process.exit(0);
     });
 });
 
@@ -271,6 +269,7 @@ process.on('SIGINT', () => {
     console.log('SIGINT signal received: closing HTTP server');
     server.close(() => {
         console.log('HTTP server closed');
+        process.exit(0);
     });
 });
 
@@ -285,6 +284,10 @@ process.on('uncaughtException', (error) => {
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+    // Don't exit on unhandled rejections, just log them
 });
+
+// Keep the process alive
+process.stdin.resume();
 
 module.exports = app; 
