@@ -40,22 +40,24 @@
                 console.log('User is signed in:', user.email);
                 // Fetch player data from GameLayer
                 try {
-                    const response = await fetch('/api/sign-in', {
-                        method: 'POST',
+                    const response = await fetch(`/api/players/${user.email}`, {
+                        method: 'GET',
                         headers: {
                             'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ email: user.email })
+                        }
                     });
 
                     const data = await response.json();
                     if (response.ok && data) {
                         // Update profile information
-                        document.getElementById('playerName').textContent = data.name;
+                        document.getElementById('playerName').textContent = data.name || 'Player';
                         document.getElementById('playerEmail').textContent = data.player;
                         if (data.imgUrl) {
                             document.getElementById('playerAvatar').src = data.imgUrl;
                         }
+                    } else {
+                        console.error('Failed to fetch player data:', data);
+                        alert('Failed to load player data. Please try again.');
                     }
                 } catch (error) {
                     console.error('Error fetching player data:', error);

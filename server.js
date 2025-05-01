@@ -218,6 +218,34 @@ app.get('/profile', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'profile.html'));
 });
 
+// Get player data
+app.get('/api/players/:email', async (req, res) => {
+    try {
+        const { email } = req.params;
+        console.log('Fetching player data for:', email);
+
+        const response = await fetch(`${API_BASE_URL}/players?player=${email}&account=${ACCOUNT_ID}`, {
+            method: 'GET',
+            headers: {
+                'api-key': API_KEY
+            }
+        });
+
+        const data = await response.json();
+        console.log('Player data response:', data);
+
+        if (response.ok) {
+            res.json(data);
+        } else {
+            console.error('Error fetching player data:', data);
+            res.status(response.status).json(data);
+        }
+    } catch (error) {
+        console.error('Error in /api/players/:email:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 // For Vercel deployment
 if (process.env.NODE_ENV !== 'production') {
     const server = app.listen(port, () => {
