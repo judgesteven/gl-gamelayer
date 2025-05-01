@@ -224,7 +224,7 @@ app.get('/api/players/:email', async (req, res) => {
         const { email } = req.params;
         console.log('Fetching player data for:', email);
 
-        const response = await fetch(`${API_BASE_URL}/players?player=${email}&account=${ACCOUNT_ID}`, {
+        const response = await fetch(`${API_BASE_URL}/players/${email}`, {
             method: 'GET',
             headers: {
                 'api-key': API_KEY
