@@ -8,6 +8,33 @@
     <title>GameLayer Player Creation</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAx4yXgJfL_5r4Uk-7CRla1CZUuyyFOeow",
+            authDomain: "ai-testing-f3b39.firebaseapp.com",
+            projectId: "ai-testing-f3b39",
+            storageBucket: "ai-testing-f3b39.firebasestorage.app",
+            messagingSenderId: "270761158142",
+            appId: "1:270761158142:web:0abfcae0ded29a34c3ccaf",
+            measurementId: "G-HFS59FNZZZ"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth(app);
+
+        // Make auth available globally
+        window.auth = auth;
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+    </script>
     <style>
         :root {
             --primary-color: #6366F1;
@@ -382,6 +409,11 @@
                         <input type="text" class="form-control" id="playerName" required>
                         <div class="form-text">Display name for the player</div>
                     </div>
+                    <div class="mb-3">
+                        <label for="playerPassword" class="form-label">Password:</label>
+                        <input type="password" class="form-control" id="playerPassword" required>
+                        <div class="form-text">Choose a secure password</div>
+                    </div>
                     <button type="submit" class="btn btn-primary">Create Player</button>
                 </form>
                 <div class="mt-4 text-center">
@@ -475,6 +507,10 @@
                             <input type="email" class="form-control" id="signInEmail" required>
                             <div class="form-text">Enter your registered email address</div>
                         </div>
+                        <div class="mb-3">
+                            <label for="signInPassword" class="form-label">Password:</label>
+                            <input type="password" class="form-control" id="signInPassword" required>
+                        </div>
                         <div class="text-center">
                             <button type="submit" class="btn btn-primary w-100">Sign In</button>
                         </div>
@@ -490,14 +526,20 @@
                     signInForm.addEventListener('submit', async function(e) {
                         e.preventDefault();
                         const email = document.getElementById('signInEmail').value;
+                        const password = document.getElementById('signInPassword').value;
                         
                         try {
+                            // First sign in with Firebase
+                            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                            const user = userCredential.user;
+                            
+                            // Then verify the GameLayer account exists
                             const response = await fetch('/api/sign-in', {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json'
                                 },
-                                body: JSON.stringify({ email })
+                                body: JSON.stringify({ email: user.email })
                             });
 
                             const data = await response.json();
@@ -506,11 +548,17 @@
                                 alert('Welcome back, ' + data.name + '!');
                                 // Here you would typically redirect to the dashboard or home page
                             } else {
-                                alert(data.error || 'Sign in failed. Please try again.');
+                                // If GameLayer account doesn't exist, sign out from Firebase
+                                await auth.signOut();
+                                alert('Account not found. Please create a new account.');
+                                // Switch back to create account form
+                                cardHeader.textContent = 'Create New Player';
+                                signInForm.remove();
+                                playerForm.style.display = 'block';
                             }
                         } catch (error) {
                             console.error('Error:', error);
-                            alert('An error occurred. Please try again.');
+                            alert(error.message || 'An error occurred. Please try again.');
                         }
                     });
 
@@ -594,30 +642,23 @@
             document.getElementById('playerForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
-                const playerId = document.getElementById('playerId').value;
+                const email = document.getElementById('playerId').value;
+                const password = document.getElementById('playerPassword').value;
                 const playerName = document.getElementById('playerName').value;
                 const avatarFile = document.getElementById('avatarInput').files[0];
                 const currentImageUrl = avatarPreview.dataset.currentImage;
 
-                // Validate required fields
-                if (!playerId || !playerName) {
-                    alert('Player ID and Name are required');
-                    return;
-                }
-
-                // Create FormData
-                const formData = new FormData();
-                
-                // Add the player data as JSON string
-                const playerData = {
-                    player: playerId,
-                    name: playerName,
-                    account: ACCOUNT_ID
-                };
-                formData.append('data', JSON.stringify(playerData));
-                
                 try {
-                    // If no custom file is uploaded, use the random avatar
+                    // First create the GameLayer account
+                    const formData = new FormData();
+                    const playerData = {
+                        player: email,
+                        name: playerName,
+                        account: ACCOUNT_ID
+                    };
+                    formData.append('data', JSON.stringify(playerData));
+                    
+                    // Handle avatar
                     if (!avatarFile && currentImageUrl) {
                         const pngBlob = await svgToPng(currentImageUrl);
                         formData.append('avatar', pngBlob, 'avatar.png');
@@ -625,27 +666,33 @@
                         formData.append('avatar', avatarFile);
                     }
 
-                    const response = await fetch('/api/create-player', {
+                    // Create player in GameLayer first
+                    const gameLayerResponse = await fetch('/api/create-player', {
                         method: 'POST',
                         body: formData
                     });
 
-                    const data = await response.json();
+                    const gameLayerData = await gameLayerResponse.json();
 
-                    if (response.ok) {
-                        alert('Player created successfully!');
-                        // Reset form
-                        document.getElementById('playerForm').reset();
-                        // Set new random profile image
-                        const randomImage = profileImages[Math.floor(Math.random() * profileImages.length)];
-                        avatarPreview.innerHTML = `<img src="${randomImage}" alt="Default avatar">`;
-                        avatarPreview.dataset.currentImage = randomImage;
-                    } else {
-                        alert(`Error: ${data.error}`);
+                    if (!gameLayerResponse.ok) {
+                        throw new Error(gameLayerData.error || 'Failed to create GameLayer account');
                     }
+
+                    // If GameLayer account creation is successful, create Firebase account
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    const user = userCredential.user;
+
+                    alert('Account created successfully! You can now sign in.');
+                    // Reset form
+                    document.getElementById('playerForm').reset();
+                    // Set new random profile image
+                    const randomImage = profileImages[Math.floor(Math.random() * profileImages.length)];
+                    avatarPreview.innerHTML = `<img src="${randomImage}" alt="Default avatar">`;
+                    avatarPreview.dataset.currentImage = randomImage;
+
                 } catch (error) {
                     console.error('Error:', error);
-                    alert('Error creating player. Please try again.');
+                    alert(error.message || 'Error creating account. Please try again.');
                 }
             });
         });
