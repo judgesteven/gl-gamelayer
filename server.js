@@ -215,8 +215,44 @@ app.get('/', (req, res) => {
 
 // For Vercel deployment
 if (process.env.NODE_ENV !== 'production') {
-    app.listen(port, () => {
+    const server = app.listen(port, () => {
         console.log(`Server running at http://localhost:${port}`);
+    });
+
+    // Handle server errors
+    server.on('error', (error) => {
+        console.error('Server error:', error);
+        if (error.code === 'EADDRINUSE') {
+            console.error(`Port ${port} is already in use. Please try a different port.`);
+        }
+    });
+
+    // Handle process termination
+    process.on('SIGTERM', () => {
+        console.log('SIGTERM signal received: closing HTTP server');
+        server.close(() => {
+            console.log('HTTP server closed');
+        });
+    });
+
+    process.on('SIGINT', () => {
+        console.log('SIGINT signal received: closing HTTP server');
+        server.close(() => {
+            console.log('HTTP server closed');
+        });
+    });
+
+    // Handle uncaught exceptions
+    process.on('uncaughtException', (error) => {
+        console.error('Uncaught Exception:', error);
+        server.close(() => {
+            process.exit(1);
+        });
+    });
+
+    // Handle unhandled promise rejections
+    process.on('unhandledRejection', (reason, promise) => {
+        console.error('Unhandled Rejection at:', promise, 'reason:', reason);
     });
 }
 
