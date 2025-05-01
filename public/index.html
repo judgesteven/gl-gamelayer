@@ -670,10 +670,15 @@
                 const currentImageUrl = avatarPreview.dataset.currentImage;
 
                 try {
-                    // First create the GameLayer account
+                    // First create the Firebase account to get the UID
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    const user = userCredential.user;
+                    console.log('Firebase user created:', user);
+
+                    // Then create the GameLayer account using the Firebase UID
                     const formData = new FormData();
                     const playerData = {
-                        player: email,
+                        player: user.uid, // Use Firebase UID as player ID
                         name: playerName,
                         account: ACCOUNT_ID
                     };
@@ -687,21 +692,22 @@
                         formData.append('avatar', avatarFile);
                     }
 
-                    // Create player in GameLayer first
+                    // Create player in GameLayer
                     const gameLayerResponse = await fetch('/api/players', {
                         method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${await user.getIdToken()}`
+                        },
                         body: formData
                     });
 
                     const gameLayerData = await gameLayerResponse.json();
 
                     if (!gameLayerResponse.ok) {
+                        // If GameLayer account creation fails, delete the Firebase account
+                        await user.delete();
                         throw new Error(gameLayerData.error || 'Failed to create GameLayer account');
                     }
-
-                    // If GameLayer account creation is successful, create Firebase account
-                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                    const user = userCredential.user;
 
                     alert('Account created successfully! You can now sign in.');
                     // Reset form
