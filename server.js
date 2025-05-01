@@ -38,16 +38,24 @@ app.use(express.static('public'));
 app.use('/uploads', express.static('public/uploads'));
 
 // Initialize Firebase Admin
+let firebaseApp;
 try {
-    admin.initializeApp({
+    firebaseApp = admin.initializeApp({
         credential: admin.credential.applicationDefault()
     });
+    console.log('Firebase initialized successfully');
 } catch (error) {
     console.error('Firebase initialization error:', error);
+    // Don't throw the error, just log it and continue
 }
 
 // Middleware to verify Firebase token
 async function verifyFirebaseToken(req, res, next) {
+    if (!firebaseApp) {
+        console.error('Firebase not initialized');
+        return res.status(500).json({ error: 'Authentication service unavailable' });
+    }
+
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({ error: 'No token provided' });
