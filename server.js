@@ -99,7 +99,7 @@ app.post('/api/players', upload.single('avatar'), async (req, res) => {
 
         // Create the request body
         const requestBody = {
-            player: player,
+            player: player, // This will be the Firebase UID
             name: name,
             account: ACCOUNT_ID
         };
@@ -153,17 +153,17 @@ app.post('/api/players', upload.single('avatar'), async (req, res) => {
 // API endpoint to sign in
 app.post('/api/sign-in', async (req, res) => {
     try {
-        const { email } = req.body;
+        const { uid } = req.body;
         
-        if (!email) {
-            console.log('Sign-in attempt with no email provided');
+        if (!uid) {
+            console.log('Sign-in attempt with no UID provided');
             return res.status(400).json({
-                error: "Email is required",
+                error: "UID is required",
                 errorCode: 400
             });
         }
 
-        console.log('Attempting to sign in user:', email);
+        console.log('Attempting to sign in user with UID:', uid);
 
         const headers = {
             'Content-Type': 'application/json',
@@ -171,7 +171,7 @@ app.post('/api/sign-in', async (req, res) => {
             'api-key': API_KEY
         };
 
-        const apiUrl = `${API_BASE_URL}/players/${email}`;
+        const apiUrl = `${API_BASE_URL}/players/${uid}`;
         console.log('Making request to GameLayer API:', {
             url: apiUrl,
             headers: {
@@ -231,12 +231,12 @@ app.get('/profile', (req, res) => {
 });
 
 // Get player data
-app.get('/api/players/:email', async (req, res) => {
+app.get('/api/players/:uid', async (req, res) => {
     try {
-        const { email } = req.params;
-        console.log('Fetching player data for:', email);
+        const { uid } = req.params;
+        console.log('Fetching player data for UID:', uid);
 
-        const response = await fetch(`${API_BASE_URL}/players/${email}`, {
+        const response = await fetch(`${API_BASE_URL}/players/${uid}`, {
             method: 'GET',
             headers: {
                 'api-key': API_KEY
@@ -253,7 +253,7 @@ app.get('/api/players/:email', async (req, res) => {
             res.status(response.status).json(data);
         }
     } catch (error) {
-        console.error('Error in /api/players/:email:', error);
+        console.error('Error in /api/players/:uid:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });

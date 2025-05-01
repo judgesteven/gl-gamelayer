@@ -550,9 +550,10 @@
                             const response = await fetch('/api/sign-in', {
                                 method: 'POST',
                                 headers: {
-                                    'Content-Type': 'application/json'
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${await user.getIdToken()}`
                                 },
-                                body: JSON.stringify({ email: user.email })
+                                body: JSON.stringify({ uid: user.uid })
                             });
 
                             console.log('GameLayer API response status:', response.status);

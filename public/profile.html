@@ -37,34 +37,33 @@
         // Check authentication state
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                console.log('User is signed in:', user.email);
-                // Fetch player data from GameLayer
+                console.log('User is signed in:', user);
                 try {
-                    const response = await fetch(`/api/players/${user.email}`, {
-                        method: 'GET',
+                    // Get player data from GameLayer
+                    const response = await fetch(`/api/players/${user.uid}`, {
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Authorization': `Bearer ${await user.getIdToken()}`
                         }
                     });
-
                     const data = await response.json();
-                    if (response.ok && data) {
-                        // Update profile information
-                        document.getElementById('playerName').textContent = data.name || 'Player';
-                        document.getElementById('playerEmail').textContent = data.player;
+                    console.log('Player data:', data);
+
+                    if (response.ok) {
+                        // Update profile with player data
+                        document.getElementById('playerName').textContent = data.name;
+                        document.getElementById('playerEmail').textContent = user.email;
                         if (data.imgUrl) {
                             document.getElementById('playerAvatar').src = data.imgUrl;
                         }
                     } else {
-                        console.error('Failed to fetch player data:', data);
-                        alert('Failed to load player data. Please try again.');
+                        throw new Error(data.error || 'Failed to fetch player data');
                     }
                 } catch (error) {
                     console.error('Error fetching player data:', error);
+                    alert('Error loading profile data');
                 }
             } else {
                 console.log('No user is signed in');
-                // Redirect to login page
                 window.location.href = '/';
             }
         });
