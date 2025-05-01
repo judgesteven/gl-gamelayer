@@ -38,9 +38,13 @@ app.use(express.static('public'));
 app.use('/uploads', express.static('public/uploads'));
 
 // Initialize Firebase Admin
-admin.initializeApp({
-    credential: admin.credential.applicationDefault()
-});
+try {
+    admin.initializeApp({
+        credential: admin.credential.applicationDefault()
+    });
+} catch (error) {
+    console.error('Firebase initialization error:', error);
+}
 
 // Middleware to verify Firebase token
 async function verifyFirebaseToken(req, res, next) {
@@ -159,7 +163,7 @@ app.post('/api/sign-in', async (req, res) => {
             'api-key': API_KEY
         };
 
-        const apiUrl = `${API_BASE_URL}/players?player=${email}&account=${ACCOUNT_ID}`;
+        const apiUrl = `${API_BASE_URL}/players/${email}`;
         console.log('Making request to GameLayer API:', {
             url: apiUrl,
             headers: {
