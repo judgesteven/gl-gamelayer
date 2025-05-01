@@ -156,13 +156,16 @@ app.post('/api/sign-in', async (req, res) => {
         const headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
-            'api-key': API_KEY
+            'x-api-key': API_KEY
         };
 
         const apiUrl = `${API_BASE_URL}/accounts/${ACCOUNT_ID}/players/${email}`;
         console.log('Making request to GameLayer API:', {
             url: apiUrl,
-            headers: headers
+            headers: {
+                ...headers,
+                'x-api-key': '***'
+            }
         });
 
         // Check if player exists
