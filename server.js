@@ -159,7 +159,7 @@ app.post('/api/sign-in', async (req, res) => {
             'api-key': API_KEY
         };
 
-        const apiUrl = `${API_BASE_URL}/accounts/${ACCOUNT_ID}/players/${email}`;
+        const apiUrl = `${API_BASE_URL}/players?player=${email}&account=${ACCOUNT_ID}`;
         console.log('Making request to GameLayer API:', {
             url: apiUrl,
             headers: {
