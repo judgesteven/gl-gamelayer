@@ -146,7 +146,7 @@ app.post('/api/sign-in', async (req, res) => {
         };
 
         // Check if player exists
-        const response = await fetch(`${API_BASE_URL}/players/${email}`, {
+        const response = await fetch(`${API_BASE_URL}/accounts/${ACCOUNT_ID}/players/${email}`, {
             method: 'GET',
             headers: headers
         });
