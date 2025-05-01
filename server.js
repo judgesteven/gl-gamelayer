@@ -90,7 +90,7 @@ app.post('/api/create-player', upload.single('avatar'), async (req, res) => {
         const headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
-            'api-key': API_KEY
+            'x-api-key': API_KEY
         };
 
         console.log('Sending request to GameLayer:', {
@@ -142,7 +142,7 @@ app.post('/api/sign-in', async (req, res) => {
         const headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
-            'api-key': API_KEY
+            'x-api-key': API_KEY
         };
 
         // Check if player exists
