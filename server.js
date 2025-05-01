@@ -268,37 +268,15 @@ const server = app.listen(port, '0.0.0.0', () => {
     }
 });
 
-// Keep the process running
-process.on('SIGTERM', () => {
-    console.log('SIGTERM signal received: closing HTTP server');
-    server.close(() => {
-        console.log('HTTP server closed');
-        process.exit(0);
-    });
-});
-
-process.on('SIGINT', () => {
-    console.log('SIGINT signal received: closing HTTP server');
-    server.close(() => {
-        console.log('HTTP server closed');
-        process.exit(0);
-    });
-});
-
 // Handle uncaught exceptions
 process.on('uncaughtException', (error) => {
     console.error('Uncaught Exception:', error);
-    // Don't exit on uncaught exceptions
 });
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-    // Don't exit on unhandled rejections
 });
-
-// Keep the process alive
-process.stdin.resume();
 
 // Handle the punycode deprecation warning
 process.on('warning', (warning) => {
@@ -309,23 +287,18 @@ process.on('warning', (warning) => {
     console.warn(warning);
 });
 
-// Keep the process alive
-setInterval(() => {
-    // This keeps the event loop running
-}, 1000);
+// Keep the server running
+const keepAlive = () => {
+    setInterval(() => {
+        server.getConnections((err, connections) => {
+            if (err) {
+                console.error('Error getting connections:', err);
+            }
+            console.log(`Active connections: ${connections}`);
+        });
+    }, 10000);
+};
 
-// Prevent the process from exiting
-process.on('exit', (code) => {
-    console.log(`Process is about to exit with code: ${code}`);
-    // Prevent exit
-    process.exitCode = 0;
-});
-
-// Keep the process alive
-process.on('beforeExit', (code) => {
-    console.log(`Process is about to exit with code: ${code}`);
-    // Prevent exit
-    process.exitCode = 0;
-});
+keepAlive();
 
 module.exports = app; 
