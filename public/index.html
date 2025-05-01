@@ -393,8 +393,40 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        // Wait for DOM to be fully loaded
+        window.addEventListener('load', function() {
             const ACCOUNT_ID = 'ai-test';
+            const signInBtn = document.getElementById('signInBtn');
+
+            // Handle sign in button click
+            if (signInBtn) {
+                signInBtn.addEventListener('click', async function() {
+                    const email = prompt('Please enter your email address:');
+                    if (email) {
+                        try {
+                            const response = await fetch('/api/sign-in', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({ email })
+                            });
+
+                            const data = await response.json();
+
+                            if (response.ok) {
+                                alert('Welcome back, ' + data.name + '!');
+                                // Here you would typically redirect to the dashboard or home page
+                            } else {
+                                alert(data.error || 'Sign in failed. Please try again.');
+                            }
+                        } catch (error) {
+                            console.error('Error:', error);
+                            alert('An error occurred. Please try again.');
+                        }
+                    }
+                });
+            }
 
             // Random profile images
             const profileImages = [
@@ -613,34 +645,6 @@
             // Set default time to 00:00
             timeSelect.value = '00:00';
             updateRefreshOffset();
-
-            // Handle sign in button click
-            document.getElementById('signInBtn').addEventListener('click', async function() {
-                const email = prompt('Please enter your email address:');
-                if (email) {
-                    try {
-                        const response = await fetch('/api/sign-in', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({ email })
-                        });
-
-                        const data = await response.json();
-
-                        if (response.ok) {
-                            alert('Welcome back, ' + data.name + '!');
-                            // Here you would typically redirect to the dashboard or home page
-                        } else {
-                            alert(data.error || 'Sign in failed. Please try again.');
-                        }
-                    } catch (error) {
-                        console.error('Error:', error);
-                        alert('An error occurred. Please try again.');
-                    }
-                }
-            });
         });
     </script>
 </body>
