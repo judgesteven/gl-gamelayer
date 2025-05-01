@@ -13,7 +13,7 @@ const port = process.env.PORT || 3000;
 // API Configuration
 const API_KEY = '9567d1ba99b22b84ee2c27cadb56fde7';
 const ACCOUNT_ID = 'ai-test';
-const API_BASE_URL = 'https://api.gamelayer.ai/v1';
+const API_BASE_URL = 'https://api.gamelayer.co/api/v0';
 
 // Configure multer for image upload
 const storage = multer.memoryStorage();
@@ -102,16 +102,16 @@ app.post('/api/create-player', upload.single('avatar'), async (req, res) => {
         const headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
-            'X-API-Key': API_KEY
+            'x-api-key': API_KEY
         };
 
         console.log('Making request to GameLayer API:', {
-            url: `${API_BASE_URL}/player/create`,
+            url: `${API_BASE_URL}/players`,
             headers: headers,
             body: requestBody
         });
 
-        const response = await fetch(`${API_BASE_URL}/player/create`, {
+        const response = await fetch(`${API_BASE_URL}/players`, {
             method: 'POST',
             headers: headers,
             body: JSON.stringify(requestBody)
@@ -153,23 +153,18 @@ app.post('/api/sign-in', async (req, res) => {
         const headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
-            'X-API-Key': API_KEY
+            'x-api-key': API_KEY
         };
 
         console.log('Making request to GameLayer API:', {
-            url: `${API_BASE_URL}/player/get`,
-            headers: headers,
-            body: { player: email, account: ACCOUNT_ID }
+            url: `${API_BASE_URL}/accounts/${ACCOUNT_ID}/players/${email}`,
+            headers: headers
         });
 
         // Check if player exists
-        const response = await fetch(`${API_BASE_URL}/player/get`, {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify({
-                player: email,
-                account: ACCOUNT_ID
-            })
+        const response = await fetch(`${API_BASE_URL}/accounts/${ACCOUNT_ID}/players/${email}`, {
+            method: 'GET',
+            headers: headers
         });
 
         if (response.status === 404) {
