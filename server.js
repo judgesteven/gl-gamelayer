@@ -259,7 +259,7 @@ app.get('/api/players/:email', async (req, res) => {
 });
 
 // Start the server
-const server = app.listen(port, () => {
+const server = app.listen(port, '0.0.0.0', () => {
     console.log(`Server running at http://localhost:${port}`);
 }).on('error', (error) => {
     console.error('Server error:', error);
