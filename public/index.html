@@ -385,7 +385,6 @@
                     <button type="submit" class="btn btn-primary">Create Player</button>
                 </form>
                 <div class="mt-4 text-center">
-                    <p class="text-muted mb-2">Already have an account?</p>
                     <button type="button" class="btn btn-outline-primary" id="signInBtn">Sign In</button>
                 </div>
             </div>
@@ -464,7 +463,7 @@
             if (signInBtn) {
                 signInBtn.addEventListener('click', function() {
                     // Change view to sign in
-                    cardHeader.textContent = 'Sign In';
+                    cardHeader.textContent = 'Returning Player Sign-In';
                     playerForm.style.display = 'none';
                     
                     // Create sign in form
