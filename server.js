@@ -61,7 +61,7 @@ async function verifyFirebaseToken(req, res, next) {
 }
 
 // API endpoint to create a player
-app.post('/api/create-player', upload.single('avatar'), async (req, res) => {
+app.post('/api/players', upload.single('avatar'), async (req, res) => {
     try {
         console.log('Received request:', {
             body: req.body,

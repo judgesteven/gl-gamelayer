@@ -677,7 +677,7 @@
                     }
 
                     // Create player in GameLayer first
-                    const gameLayerResponse = await fetch('/api/create-player', {
+                    const gameLayerResponse = await fetch('/api/players', {
                         method: 'POST',
                         body: formData
                     });
