@@ -102,7 +102,7 @@ app.post('/api/players', upload.single('avatar'), async (req, res) => {
         const headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
-            'x-api-key': API_KEY
+            'Authorization': `Bearer ${API_KEY}`
         };
 
         console.log('Making request to GameLayer API:', {
@@ -153,7 +153,7 @@ app.post('/api/sign-in', async (req, res) => {
         const headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
-            'x-api-key': API_KEY
+            'Authorization': `Bearer ${API_KEY}`
         };
 
         console.log('Making request to GameLayer API:', {
