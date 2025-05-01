@@ -314,4 +314,18 @@ setInterval(() => {
     // This keeps the event loop running
 }, 1000);
 
+// Prevent the process from exiting
+process.on('exit', (code) => {
+    console.log(`Process is about to exit with code: ${code}`);
+    // Prevent exit
+    process.exitCode = 0;
+});
+
+// Keep the process alive
+process.on('beforeExit', (code) => {
+    console.log(`Process is about to exit with code: ${code}`);
+    // Prevent exit
+    process.exitCode = 0;
+});
+
 module.exports = app; 
