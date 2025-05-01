@@ -12,14 +12,14 @@
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         // Your web app's Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyAx4yXgJfL_5r4Uk-7CRla1CZUuyyFOeow",
             authDomain: "ai-testing-f3b39.firebaseapp.com",
             projectId: "ai-testing-f3b39",
-            storageBucket: "ai-testing-f3b39.firebasestorage.app",
+            storageBucket: "ai-testing-f3b39.appspot.com",
             messagingSenderId: "270761158142",
             appId: "1:270761158142:web:0abfcae0ded29a34c3ccaf",
             measurementId: "G-HFS59FNZZZ"
@@ -34,6 +34,16 @@
         window.auth = auth;
         window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
         window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.signOut = signOut;
+
+        // Check authentication state
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                console.log('User is signed in:', user.email);
+            } else {
+                console.log('No user is signed in');
+            }
+        });
     </script>
     <style>
         :root {
@@ -549,7 +559,7 @@
                                 // Here you would typically redirect to the dashboard or home page
                             } else {
                                 // If GameLayer account doesn't exist, sign out from Firebase
-                                await auth.signOut();
+                                await signOut(auth);
                                 alert('Account not found. Please create a new account.');
                                 // Switch back to create account form
                                 cardHeader.textContent = 'Create New Player';

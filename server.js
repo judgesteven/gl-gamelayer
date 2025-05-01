@@ -5,6 +5,7 @@ const fetch = require('node-fetch');
 const multer = require('multer');
 const fs = require('fs');
 require('dotenv').config();
+const admin = require('firebase-admin');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -35,6 +36,29 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 app.use('/uploads', express.static('public/uploads'));
+
+// Initialize Firebase Admin
+admin.initializeApp({
+    credential: admin.credential.applicationDefault()
+});
+
+// Middleware to verify Firebase token
+async function verifyFirebaseToken(req, res, next) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'No token provided' });
+    }
+
+    const token = authHeader.split('Bearer ')[1];
+    try {
+        const decodedToken = await admin.auth().verifyIdToken(token);
+        req.user = decodedToken;
+        next();
+    } catch (error) {
+        console.error('Error verifying token:', error);
+        res.status(401).json({ error: 'Invalid token' });
+    }
+}
 
 // API endpoint to create a player
 app.post('/api/create-player', upload.single('avatar'), async (req, res) => {
@@ -81,6 +105,12 @@ app.post('/api/create-player', upload.single('avatar'), async (req, res) => {
             'x-api-key': API_KEY
         };
 
+        console.log('Making request to GameLayer API:', {
+            url: `${API_BASE_URL}/players`,
+            headers: headers,
+            body: requestBody
+        });
+
         const response = await fetch(`${API_BASE_URL}/players`, {
             method: 'POST',
             headers: headers,
@@ -125,6 +155,11 @@ app.post('/api/sign-in', async (req, res) => {
             'Accept': 'application/json',
             'x-api-key': API_KEY
         };
+
+        console.log('Making request to GameLayer API:', {
+            url: `${API_BASE_URL}/accounts/${ACCOUNT_ID}/players/${email}`,
+            headers: headers
+        });
 
         // Check if player exists
         const response = await fetch(`${API_BASE_URL}/accounts/${ACCOUNT_ID}/players/${email}`, {
