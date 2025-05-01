@@ -397,12 +397,46 @@
         window.addEventListener('load', function() {
             const ACCOUNT_ID = 'ai-test';
             const signInBtn = document.getElementById('signInBtn');
+            const playerForm = document.getElementById('playerForm');
+            const cardHeader = document.querySelector('.card-header h1');
+            const avatarPreview = document.getElementById('avatarPreview');
+
+            // Set random profile image on load
+            const randomImage = profileImages[Math.floor(Math.random() * profileImages.length)];
+            avatarPreview.innerHTML = `<img src="${randomImage}" alt="Default avatar">`;
+            avatarPreview.dataset.currentImage = randomImage;
 
             // Handle sign in button click
             if (signInBtn) {
-                signInBtn.addEventListener('click', async function() {
-                    const email = prompt('Please enter your email address:');
-                    if (email) {
+                signInBtn.addEventListener('click', function() {
+                    // Change view to sign in
+                    cardHeader.textContent = 'Sign In';
+                    playerForm.style.display = 'none';
+                    
+                    // Create sign in form
+                    const signInForm = document.createElement('form');
+                    signInForm.id = 'signInForm';
+                    signInForm.innerHTML = `
+                        <div class="mb-3">
+                            <label for="signInEmail" class="form-label">Email Address:</label>
+                            <input type="email" class="form-control" id="signInEmail" required>
+                            <div class="form-text">Enter your registered email address</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Sign In</button>
+                        <div class="mt-4 text-center">
+                            <p class="text-muted mb-2">Don't have an account?</p>
+                            <button type="button" class="btn btn-outline-primary" id="backToSignUp">Create Account</button>
+                        </div>
+                    `;
+                    
+                    // Replace the create account form with sign in form
+                    playerForm.parentNode.insertBefore(signInForm, playerForm.nextSibling);
+                    
+                    // Handle sign in form submission
+                    signInForm.addEventListener('submit', async function(e) {
+                        e.preventDefault();
+                        const email = document.getElementById('signInEmail').value;
+                        
                         try {
                             const response = await fetch('/api/sign-in', {
                                 method: 'POST',
@@ -424,7 +458,14 @@
                             console.error('Error:', error);
                             alert('An error occurred. Please try again.');
                         }
-                    }
+                    });
+
+                    // Handle back to sign up button
+                    document.getElementById('backToSignUp').addEventListener('click', function() {
+                        cardHeader.textContent = 'Create New Player';
+                        signInForm.remove();
+                        playerForm.style.display = 'block';
+                    });
                 });
             }
 
@@ -521,16 +562,6 @@
                 }
             }
 
-            // Set random profile image on load
-            window.addEventListener('load', async function() {
-                const randomImage = profileImages[Math.floor(Math.random() * profileImages.length)];
-                const avatarPreview = document.getElementById('avatarPreview');
-                avatarPreview.innerHTML = `<img src="${randomImage}" alt="Default avatar">`;
-                
-                // Store the current random image URL
-                avatarPreview.dataset.currentImage = randomImage;
-            });
-
             // Validate refresh offset format
             function validateRefreshOffset(offset) {
                 if (!offset) return true;
@@ -540,7 +571,6 @@
 
             // Handle avatar upload
             const avatarInput = document.getElementById('avatarInput');
-            const avatarPreview = document.getElementById('avatarPreview');
 
             avatarInput.addEventListener('change', function(e) {
                 const file = e.target.files[0];
