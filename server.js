@@ -206,16 +206,6 @@ app.post('/api/sign-in', async (req, res) => {
     }
 });
 
-// Serve the main page
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// Serve the profile page
-app.get('/profile', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'profile.html'));
-});
-
 // Get player data
 app.get('/api/players/:uid', async (req, res) => {
     try {
@@ -257,6 +247,59 @@ app.get('/api/players/:uid', async (req, res) => {
             errorCode: 500
         });
     }
+});
+
+// Get team data
+app.get('/api/teams/:teamId', async (req, res) => {
+    try {
+        const { teamId } = req.params;
+        console.log('Fetching team data for ID:', teamId);
+
+        const headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'api-key': API_KEY
+        };
+
+        // Get team data from GameLayer
+        const teamUrl = `${API_BASE_URL}/teams/${teamId}?account=${ACCOUNT_ID}`;
+        console.log('Making request to GameLayer API:', teamUrl);
+
+        const teamResponse = await fetch(teamUrl, {
+            method: 'GET',
+            headers: headers
+        });
+
+        const teamData = await teamResponse.json();
+        console.log('GameLayer API response:', {
+            status: teamResponse.status,
+            data: teamData
+        });
+
+        if (teamResponse.ok) {
+            console.log('Returning team data:', teamData);
+            res.status(200).json(teamData);
+        } else {
+            console.error('Error fetching team data:', teamData);
+            res.status(teamResponse.status).json(teamData);
+        }
+    } catch (error) {
+        console.error('Server error during team fetch:', error);
+        res.status(500).json({ 
+            error: error.message,
+            errorCode: 500
+        });
+    }
+});
+
+// Serve the main page
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Serve the profile page
+app.get('/profile', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'profile.html'));
 });
 
 // Start the server
