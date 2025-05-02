@@ -175,7 +175,7 @@ app.post('/api/sign-in', async (req, res) => {
             'api-key': API_KEY
         };
 
-        // Use Firebase UID as player-id in GameLayer API call
+        // Dynamically use the Firebase UID as player-id in GameLayer API call
         const playerUrl = `${API_BASE_URL}/players/${uid}?account=${ACCOUNT_ID}`;
         console.log('Making request to GameLayer API:', playerUrl);
 
@@ -222,38 +222,40 @@ app.get('/api/players/:uid', async (req, res) => {
         const { uid } = req.params;
         console.log('Fetching player data for UID:', uid);
 
-        // Get the currently logged in player from GameLayer
-        const apiUrl = `${API_BASE_URL}/players?player=${uid}&account=${ACCOUNT_ID}`;
-        console.log('Making request to GameLayer API:', apiUrl);
+        const headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'api-key': API_KEY
+        };
 
-        const response = await fetch(apiUrl, {
+        // Dynamically use the Firebase UID as player-id in GameLayer API call
+        const playerUrl = `${API_BASE_URL}/players/${uid}?account=${ACCOUNT_ID}`;
+        console.log('Making request to GameLayer API:', playerUrl);
+
+        const playerResponse = await fetch(playerUrl, {
             method: 'GET',
-            headers: {
-                'api-key': API_KEY,
-                'Accept': 'application/json'
-            }
+            headers: headers
         });
 
-        const data = await response.json();
+        const playerData = await playerResponse.json();
         console.log('GameLayer API response:', {
-            status: response.status,
-            data: data
+            status: playerResponse.status,
+            data: playerData
         });
 
-        if (response.ok) {
-            // Return the first player from the array (should be the current player)
-            const playerData = Array.isArray(data) ? data[0] : data;
-            if (!playerData) {
-                return res.status(404).json({ error: 'Player not found' });
-            }
-            res.json(playerData);
+        if (playerResponse.ok) {
+            console.log('Returning player data:', playerData);
+            res.status(200).json(playerData);
         } else {
-            console.error('Error fetching player data:', data);
-            res.status(response.status).json(data);
+            console.error('Error fetching player data:', playerData);
+            res.status(playerResponse.status).json(playerData);
         }
     } catch (error) {
-        console.error('Error in /api/players/:uid:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        console.error('Server error during sign-in:', error);
+        res.status(500).json({ 
+            error: error.message,
+            errorCode: 500
+        });
     }
 });
 
