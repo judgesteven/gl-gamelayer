@@ -388,44 +388,60 @@ app.get('/profile', (req, res) => {
 });
 
 // Handle uncaught exceptions
-process.on('uncaughtException', (error) => {
-    console.error('Uncaught Exception:', error);
-    // Don't exit the process
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception:', err);
 });
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-    // Don't exit the process
 });
+
+// Keep track of active connections
+let activeConnections = 0;
 
 // Start the server
-const server = app.listen(port, '0.0.0.0', () => {
-    console.log(`Server running at http://localhost:${port}`);
-    console.log('Firebase status:', firebaseApp ? 'Initialized' : 'Not initialized (development mode)');
-}).on('error', (error) => {
-    console.error('Server error:', error);
-    if (error.code === 'EADDRINUSE') {
-        console.error(`Port ${port} is already in use. Please try a different port.`);
-    }
+const server = app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+    console.log('Development mode:', process.env.NODE_ENV !== 'production');
+    console.log('Firebase initialized:', !!firebaseApp);
+    console.log('Active connections:', activeConnections);
 });
 
-// Keep the server running
-const keepAlive = () => {
-    setInterval(() => {
-        server.getConnections((err, connections) => {
-            if (err) {
-                console.error('Error getting connections:', err);
-            }
-            console.log(`Active connections: ${connections}`);
-        });
-    }, 10000);
-};
+// Keep track of connections
+server.on('connection', (socket) => {
+    activeConnections++;
+    console.log('New connection. Active connections:', activeConnections);
+    
+    socket.on('close', () => {
+        activeConnections--;
+        console.log('Connection closed. Active connections:', activeConnections);
+    });
+});
 
-keepAlive();
+// Keep the server alive
+const keepAlive = setInterval(() => {
+    console.log('Server heartbeat. Active connections:', activeConnections);
+}, 10000);
 
-// Keep the process alive
-process.stdin.resume();
+// Handle server shutdown
+process.on('SIGTERM', () => {
+    console.log('SIGTERM received. Shutting down gracefully...');
+    clearInterval(keepAlive);
+    server.close(() => {
+        console.log('Server closed');
+        process.exit(0);
+    });
+});
+
+process.on('SIGINT', () => {
+    console.log('SIGINT received. Shutting down gracefully...');
+    clearInterval(keepAlive);
+    server.close(() => {
+        console.log('Server closed');
+        process.exit(0);
+    });
+});
 
 // Export the app
 module.exports = app; 
