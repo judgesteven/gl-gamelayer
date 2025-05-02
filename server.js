@@ -40,8 +40,9 @@ app.use('/uploads', express.static('public/uploads'));
 // Initialize Firebase Admin
 let firebaseApp;
 try {
+    const serviceAccount = require('./serviceAccountKey.json');
     firebaseApp = admin.initializeApp({
-        credential: admin.credential.applicationDefault()
+        credential: admin.credential.cert(serviceAccount)
     });
     console.log('Firebase initialized successfully');
 } catch (error) {
@@ -174,7 +175,17 @@ app.post('/api/sign-in', async (req, res) => {
         try {
             // Verify the user exists in Firebase
             const userRecord = await admin.auth().getUser(uid);
-            console.log('Firebase user verified:', userRecord.uid);
+            console.log('Firebase user verified:', {
+                uid: userRecord.uid,
+                email: userRecord.email,
+                emailVerified: userRecord.emailVerified
+            });
+
+            // Check if email matches
+            if (email && userRecord.email !== email) {
+                console.error('Email mismatch:', { provided: email, actual: userRecord.email });
+                return res.status(401).json({ error: 'Email mismatch' });
+            }
         } catch (error) {
             console.error('Firebase authentication error:', error);
             return res.status(401).json({ error: 'Invalid Firebase user' });

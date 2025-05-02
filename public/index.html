@@ -12,7 +12,7 @@
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         // Your web app's Firebase configuration
         const firebaseConfig = {
@@ -29,6 +29,15 @@
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
         const auth = getAuth(app);
+
+        // Set persistence to LOCAL to keep user signed in
+        setPersistence(auth, browserLocalPersistence)
+            .then(() => {
+                console.log('Firebase persistence set to LOCAL');
+            })
+            .catch((error) => {
+                console.error('Error setting persistence:', error);
+            });
 
         // Make auth available globally
         window.auth = auth;
