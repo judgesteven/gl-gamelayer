@@ -394,6 +394,7 @@
             width: 100%;
             position: relative;
             overflow: visible;
+            z-index: 1;
         }
 
         @media (max-width: 768px) {
@@ -415,6 +416,9 @@
             padding: 0;
             overflow: hidden;
             position: relative;
+            z-index: 2;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            transform: translateY(-20px);
         }
         
         .mission-card.priority-1 .mission-name,
