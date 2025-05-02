@@ -71,8 +71,8 @@
                                 const teamData = await teamResponse.json();
                                 console.log('Team data:', teamData);
                                 
-                                if (teamResponse.ok && teamData) {
-                                    document.getElementById('playerTeam').textContent = teamData.name;
+                                if (teamResponse.ok && teamData && teamData.team && teamData.team.name) {
+                                    document.getElementById('playerTeam').textContent = teamData.team.name;
                                 } else {
                                     document.getElementById('playerTeam').textContent = 'No Team';
                                 }
