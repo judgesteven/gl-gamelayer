@@ -249,79 +249,140 @@
             color: var(--text-primary);
         }
 
-        .mission-card.priority-1 {
+        /* Mission Cards Styling */
+        .missions-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
             width: 100%;
-            margin-bottom: 2rem;
-            margin-left: 0;
-            background: linear-gradient(135deg, var(--primary-color) 0%, #0066CC 100%);
-            color: white;
-            padding: 0;
+        }
+
+        .mission-card {
+            background: white;
+            border-radius: 16px;
             overflow: hidden;
-            position: relative;
-            z-index: 2;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-            transform: translateY(-20px);
-            border-radius: var(--border-radius);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .mission-card.priority-1 {
+            background: linear-gradient(135deg, #007AFF 0%, #0055CC 100%);
+            color: white;
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 122, 255, 0.2);
         }
 
         .mission-card.priority-2 {
-            width: 45%;
-            background: var(--card-bg);
-            border-radius: var(--border-radius);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: var(--transition);
+            background: white;
+            border: 1px solid rgba(0, 0, 0, 0.1);
         }
 
-        .priority-2-container {
+        .mission-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .mission-card.priority-1:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 15px 30px rgba(0, 122, 255, 0.3);
+        }
+
+        .mission-content {
+            padding: 1.5rem;
+        }
+
+        .mission-header {
             display: flex;
-            flex-wrap: wrap;
-            gap: 2rem;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .mission-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: rgba(0, 122, 255, 0.1);
+            display: flex;
+            align-items: center;
             justify-content: center;
-            width: 100%;
+            font-size: 1.5rem;
+        }
+
+        .mission-card.priority-1 .mission-icon {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
         }
 
         .mission-name {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: 600;
-            margin-bottom: 0.5rem;
+            margin: 0;
             color: var(--text-primary);
+        }
+
+        .mission-card.priority-1 .mission-name {
+            color: white;
         }
 
         .mission-description {
             color: var(--text-secondary);
-            font-size: 1rem;
+            font-size: 0.95rem;
             line-height: 1.5;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .mission-card.priority-1 .mission-description {
+            color: rgba(255, 255, 255, 0.9);
         }
 
         .mission-rewards {
             display: flex;
             gap: 1rem;
             margin-bottom: 1rem;
-            flex-wrap: wrap;
         }
 
-        .mission-reward.badge {
-            display: inline-flex;
+        .mission-reward {
+            display: flex;
             align-items: center;
+            gap: 0.5rem;
             padding: 0.5rem 1rem;
-            border-radius: 50px;
+            border-radius: 8px;
             font-size: 0.9rem;
-            font-weight: 600;
+            font-weight: 500;
+        }
+
+        .mission-card.priority-1 .mission-reward {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .mission-card.priority-2 .mission-reward {
             background: rgba(0, 122, 255, 0.1);
             color: var(--primary-color);
         }
 
         .mission-expiry {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .mission-card.priority-1 .mission-expiry {
+            color: rgba(255, 255, 255, 0.8);
         }
 
         .mission-expiry i {
-            color: var(--accent-color);
+            font-size: 1rem;
+        }
+
+        .priority-2-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            width: 100%;
         }
 
         @media (max-width: 768px) {
@@ -343,13 +404,21 @@
                 justify-content: center;
             }
             
-            .mission-card.priority-1 {
+            .mission-card {
                 width: 100%;
-                margin-left: 0;
             }
             
             .priority-2-container {
                 grid-template-columns: 1fr;
+            }
+
+            .mission-rewards {
+                flex-direction: column;
+            }
+
+            .mission-reward {
+                width: 100%;
+                justify-content: center;
             }
         }
     </style>
@@ -483,29 +552,27 @@
                     const credits = mission.rewards?.credits || 0;
                     
                     priorityCard.innerHTML = `
-                        <div class="priority-1-content">
-                            <div class="priority-1-image">
-                                <img src="${mission.imgUrl || 'https://via.placeholder.com/300x160?text=No+Image'}" 
-                                     alt="${mission.name}" 
-                                     class="mission-image">
-                            </div>
-                            <div class="priority-1-details">
+                        <div class="mission-content">
+                            <div class="mission-header">
+                                <div class="mission-icon">
+                                    <i class="bi bi-star-fill"></i>
+                                </div>
                                 <h3 class="mission-name">${mission.name}</h3>
-                                <p class="mission-description">${mission.description}</p>
-                                <div class="mission-rewards">
-                                    <div class="mission-reward badge points-badge">
-                                        <i class="bi bi-star-fill"></i>
-                                        <span>${points} Points</span>
-                                    </div>
-                                    <div class="mission-reward badge credits-badge">
-                                        <i class="bi bi-coin"></i>
-                                        <span>${credits} Credits</span>
-                                    </div>
+                            </div>
+                            <p class="mission-description">${mission.description}</p>
+                            <div class="mission-rewards">
+                                <div class="mission-reward">
+                                    <i class="bi bi-star-fill"></i>
+                                    <span>${points} Points</span>
                                 </div>
-                                <div class="mission-expiry">
-                                    <i class="bi bi-clock"></i>
-                                    <span>Expires: ${formatDate(endDate)}</span>
+                                <div class="mission-reward">
+                                    <i class="bi bi-coin"></i>
+                                    <span>${credits} Credits</span>
                                 </div>
+                            </div>
+                            <div class="mission-expiry">
+                                <i class="bi bi-clock"></i>
+                                <span>Expires: ${formatDate(endDate)}</span>
                             </div>
                         </div>
                     `;
@@ -531,29 +598,27 @@
                         const credits = mission.rewards?.credits || 0;
                         
                         missionCard.innerHTML = `
-                            <div class="priority-2-content">
-                                <div class="priority-2-image">
-                                    <img src="${mission.imgUrl || 'https://via.placeholder.com/300x160?text=No+Image'}" 
-                                         alt="${mission.name}" 
-                                         class="mission-image">
-                                </div>
-                                <div class="priority-2-details">
+                            <div class="mission-content">
+                                <div class="mission-header">
+                                    <div class="mission-icon">
+                                        <i class="bi bi-star"></i>
+                                    </div>
                                     <h3 class="mission-name">${mission.name}</h3>
-                                    <p class="mission-description">${mission.description}</p>
-                                    <div class="mission-rewards">
-                                        <div class="mission-reward badge points-badge">
-                                            <i class="bi bi-star-fill"></i>
-                                            <span>${points} Points</span>
-                                        </div>
-                                        <div class="mission-reward badge credits-badge">
-                                            <i class="bi bi-coin"></i>
-                                            <span>${credits} Credits</span>
-                                        </div>
+                                </div>
+                                <p class="mission-description">${mission.description}</p>
+                                <div class="mission-rewards">
+                                    <div class="mission-reward">
+                                        <i class="bi bi-star-fill"></i>
+                                        <span>${points} Points</span>
                                     </div>
-                                    <div class="mission-expiry">
-                                        <i class="bi bi-clock"></i>
-                                        <span>Expires: ${formatDate(endDate)}</span>
+                                    <div class="mission-reward">
+                                        <i class="bi bi-coin"></i>
+                                        <span>${credits} Credits</span>
                                     </div>
+                                </div>
+                                <div class="mission-expiry">
+                                    <i class="bi bi-clock"></i>
+                                    <span>Expires: ${formatDate(endDate)}</span>
                                 </div>
                             </div>
                         `;
