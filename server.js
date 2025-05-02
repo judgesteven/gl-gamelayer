@@ -236,7 +236,7 @@ app.get('/api/players/:uid', async (req, res) => {
         const { uid } = req.params;
         console.log('Fetching player data for UID:', uid);
 
-        const response = await fetch(`${API_BASE_URL}/players/${uid}`, {
+        const response = await fetch(`${API_BASE_URL}/players?player=${uid}&account=${ACCOUNT_ID}`, {
             method: 'GET',
             headers: {
                 'api-key': API_KEY
