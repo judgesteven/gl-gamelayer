@@ -37,34 +37,30 @@
         // Check authentication state
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                console.log('User is signed in:', user);
+                console.log('User authenticated with Firebase:', user.uid);
                 try {
-                    // Get player data ONLY from GameLayer
+                    // Get ALL player data from GameLayer API
                     const response = await fetch(`/api/players/${user.uid}`);
                     const data = await response.json();
-                    console.log('Player data from GameLayer:', data);
+                    console.log('GameLayer player data:', data);
 
                     if (response.ok) {
-                        // Update profile with ONLY GameLayer data
-                        document.getElementById('playerName').textContent = data.name || 'Player';
-                        document.getElementById('playerEmail').textContent = data.email || user.email; // Keep email as fallback
-                        document.getElementById('playerPoints').textContent = data.points || '0';
-                        document.getElementById('playerCredits').textContent = data.credits || '0';
-                        // Use level.name if available, otherwise use level.ordinal
-                        const levelDisplay = data.level ? (data.level.name || data.level.ordinal || '1') : '1';
-                        document.getElementById('playerLevel').textContent = levelDisplay;
-                        if (data.imgUrl) {
-                            document.getElementById('playerAvatar').src = data.imgUrl;
-                        }
+                        // Display ONLY GameLayer data
+                        document.getElementById('playerName').textContent = data.name;
+                        document.getElementById('playerEmail').textContent = data.email;
+                        document.getElementById('playerPoints').textContent = data.points;
+                        document.getElementById('playerCredits').textContent = data.credits;
+                        document.getElementById('playerLevel').textContent = data.level.name || data.level.ordinal;
+                        document.getElementById('playerAvatar').src = data.imgUrl;
                     } else {
-                        throw new Error(data.error || 'Failed to fetch player data');
+                        throw new Error(data.error || 'Failed to fetch player data from GameLayer');
                     }
                 } catch (error) {
-                    console.error('Error fetching player data:', error);
-                    alert('Error loading profile data');
+                    console.error('Error fetching GameLayer data:', error);
+                    alert('Error loading player data from GameLayer');
                 }
             } else {
-                console.log('No user is signed in');
+                console.log('No user authenticated');
                 window.location.href = '/';
             }
         });
