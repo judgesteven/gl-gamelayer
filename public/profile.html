@@ -561,10 +561,12 @@
 
                 console.log('Fetching missions for user:', user.uid);
                 const token = await user.getIdToken();
-                console.log('Got Firebase token');
+                console.log('Got Firebase token:', token.substring(0, 20) + '...');
 
-                console.log('Making request to missions endpoint:', `/api/missions/${user.uid}`);
-                const response = await fetch(`/api/missions/${user.uid}`, {
+                const missionsUrl = `/api/missions/${user.uid}`;
+                console.log('Making request to missions endpoint:', missionsUrl);
+                
+                const response = await fetch(missionsUrl, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -576,7 +578,7 @@
                 if (!response.ok) {
                     const errorData = await response.json();
                     console.error('Failed to fetch missions:', errorData);
-                    throw new Error('Failed to fetch missions');
+                    throw new Error(`Failed to fetch missions: ${errorData.error || response.statusText}`);
                 }
 
                 const missions = await response.json();
@@ -597,7 +599,7 @@
 
                 // Sort missions by priority
                 missions.sort((a, b) => (a.priority || 999) - (b.priority || 999));
-                console.log('Sorted missions:', missions);
+                console.log('Sorted missions by priority:', missions);
 
                 // Find priority 1 missions
                 const priority1Missions = missions.filter(mission => mission.priority === 1);
@@ -651,11 +653,7 @@
                 if (priority2Missions.length > 0) {
                     // Create a container for priority 2 missions
                     const priority2Container = document.createElement('div');
-                    priority2Container.style.display = 'grid';
-                    priority2Container.style.gridTemplateColumns = 'repeat(3, 1fr)';
-                    priority2Container.style.gap = '1rem';
-                    priority2Container.style.marginBottom = '2rem';
-                    priority2Container.style.width = '100%';
+                    priority2Container.className = 'priority-2-container';
 
                     priority2Missions.forEach(mission => {
                         console.log('Creating priority 2 mission card for:', mission);
@@ -704,10 +702,7 @@
 
                 if (remainingMissions.length > 0) {
                     const remainingContainer = document.createElement('div');
-                    remainingContainer.style.display = 'grid';
-                    remainingContainer.style.gridTemplateColumns = 'repeat(auto-fill, minmax(300px, 1fr))';
-                    remainingContainer.style.gap = '1rem';
-                    remainingContainer.style.width = '100%';
+                    remainingContainer.className = 'remaining-missions-container';
 
                     remainingMissions.forEach(mission => {
                         console.log('Processing mission:', mission);
@@ -748,7 +743,7 @@
                 const missionsGrid = document.getElementById('missionsGrid');
                 missionsGrid.innerHTML = `
                     <div class="mission-card">
-                        <p class="mission-description">Failed to load missions. Please try again later.</p>
+                        <p class="mission-description">Failed to load missions: ${error.message}</p>
                     </div>
                 `;
             }
