@@ -390,22 +390,29 @@ app.get('/profile', (req, res) => {
 // Handle uncaught exceptions
 process.on('uncaughtException', (err) => {
     console.error('Uncaught Exception:', err);
+    // Don't exit the process
 });
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+    // Don't exit the process
 });
 
 // Keep track of active connections
 let activeConnections = 0;
 
 // Start the server
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running at http://localhost:${PORT}`);
     console.log('Development mode:', process.env.NODE_ENV !== 'production');
     console.log('Firebase initialized:', !!firebaseApp);
     console.log('Active connections:', activeConnections);
+}).on('error', (error) => {
+    console.error('Server error:', error);
+    if (error.code === 'EADDRINUSE') {
+        console.error(`Port ${PORT} is already in use. Please try a different port.`);
+    }
 });
 
 // Keep track of connections
@@ -420,14 +427,25 @@ server.on('connection', (socket) => {
 });
 
 // Keep the server alive
-const keepAlive = setInterval(() => {
-    console.log('Server heartbeat. Active connections:', activeConnections);
-}, 10000);
+const keepAlive = () => {
+    setInterval(() => {
+        server.getConnections((err, connections) => {
+            if (err) {
+                console.error('Error getting connections:', err);
+            }
+            console.log(`Active connections: ${connections}`);
+        });
+    }, 10000);
+};
+
+keepAlive();
+
+// Keep the process alive
+process.stdin.resume();
 
 // Handle server shutdown
 process.on('SIGTERM', () => {
     console.log('SIGTERM received. Shutting down gracefully...');
-    clearInterval(keepAlive);
     server.close(() => {
         console.log('Server closed');
         process.exit(0);
@@ -436,7 +454,6 @@ process.on('SIGTERM', () => {
 
 process.on('SIGINT', () => {
     console.log('SIGINT received. Shutting down gracefully...');
-    clearInterval(keepAlive);
     server.close(() => {
         console.log('Server closed');
         process.exit(0);
