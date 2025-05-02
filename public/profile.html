@@ -95,71 +95,136 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            background-color: #f8f9fa;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            min-height: 100vh;
             padding: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+
         .profile-card {
-            max-width: 600px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 800px;
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             padding: 2rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
+
         .profile-header {
             text-align: center;
             margin-bottom: 2rem;
+            position: relative;
         }
+
         .profile-avatar {
             width: 150px;
             height: 150px;
             border-radius: 50%;
             object-fit: cover;
-            margin-bottom: 1rem;
-            border: 3px solid #007bff;
+            margin-bottom: 1.5rem;
+            border: 4px solid var(--primary-color);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+            transition: var(--transition);
         }
+
+        .profile-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3);
+        }
+
         .profile-name {
-            font-size: 2rem;
+            font-size: 2.5rem;
             font-weight: bold;
             margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
         .profile-email {
-            color: #6c757d;
-            margin-bottom: 1rem;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
         }
+
         .stats-container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
+            gap: 1.5rem;
             margin: 2rem 0;
             text-align: center;
         }
+
         .stat-item {
-            padding: 1rem;
-            background: #f8f9fa;
-            border-radius: 8px;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
         }
+
+        .stat-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+        }
+
         .stat-value {
-            font-size: 1.5rem;
+            font-size: 2rem;
             font-weight: bold;
             color: var(--primary-color);
+            margin-bottom: 0.5rem;
         }
+
         .stat-label {
             color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
+
         .btn-signout {
-            background-color: #dc3545;
+            background-color: var(--accent-color);
             color: white;
             border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
+            padding: 0.75rem 2rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: var(--transition);
+            box-shadow: 0 4px 12px rgba(244, 63, 94, 0.2);
         }
+
         .btn-signout:hover {
-            background-color: #c82333;
+            background-color: #e11d48;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(244, 63, 94, 0.3);
+        }
+
+        .level-badge {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 1rem;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-card {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
         }
     </style>
 </head>
@@ -169,6 +234,9 @@
             <img id="playerAvatar" src="https://via.placeholder.com/150" alt="Player Avatar" class="profile-avatar">
             <h1 id="playerName" class="profile-name">Loading...</h1>
             <p id="playerEmail" class="profile-email">Loading...</p>
+            <div class="level-badge">
+                Level <span id="playerLevel">1</span>
+            </div>
             
             <div class="stats-container">
                 <div class="stat-item">
@@ -179,13 +247,11 @@
                     <div id="playerCredits" class="stat-value">0</div>
                     <div class="stat-label">Credits</div>
                 </div>
-                <div class="stat-item">
-                    <div id="playerLevel" class="stat-value">1</div>
-                    <div class="stat-label">Level</div>
-                </div>
             </div>
 
-            <button onclick="handleSignOut()" class="btn-signout">Sign Out</button>
+            <button onclick="handleSignOut()" class="btn-signout">
+                <i class="bi bi-box-arrow-right"></i> Sign Out
+            </button>
         </div>
     </div>
 
