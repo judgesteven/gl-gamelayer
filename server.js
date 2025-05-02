@@ -301,4 +301,21 @@ const keepAlive = () => {
 
 keepAlive();
 
+// Prevent the process from exiting
+process.on('exit', (code) => {
+    console.log(`Process is about to exit with code: ${code}`);
+    // Prevent exit
+    process.exitCode = 0;
+});
+
+// Keep the process alive
+process.on('beforeExit', (code) => {
+    console.log(`Process is about to exit with code: ${code}`);
+    // Prevent exit
+    process.exitCode = 0;
+});
+
+// Keep the process alive
+process.stdin.resume();
+
 module.exports = app; 
