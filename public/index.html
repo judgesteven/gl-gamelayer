@@ -394,59 +394,159 @@
                 font-size: 1.35rem;
             }
         }
+
+        /* Add these styles to your existing styles */
+        .form-container {
+            position: relative;
+            transition: height 0.3s ease-in-out;
+        }
+
+        #playerForm, #signInForm {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            opacity: 1;
+            transition: opacity 0.3s ease-in-out;
+            visibility: visible;
+        }
+
+        #playerForm.hidden, #signInForm.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+            gap: 1rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .toggle-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .toggle-label.active {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: var(--transition);
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: var(--transition);
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="card">
             <div class="card-header">
-                <h1>Create New Player</h1>
+                <h1 id="cardTitle">Create New Player</h1>
             </div>
             <div class="card-body">
-                <form id="playerForm">
-                    <div class="avatar-section">
-                        <div class="avatar-preview" id="avatarPreview">
-                            <div class="placeholder">
-                                <i class="bi bi-person-circle"></i>
-                                <p>No avatar selected</p>
+                <!-- Toggle Switch -->
+                <div class="toggle-container">
+                    <span class="toggle-label active" id="signUpLabel">Sign Up</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="formToggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="toggle-label" id="signInLabel">Sign In</span>
+                </div>
+
+                <div class="form-container">
+                    <!-- Sign Up Form -->
+                    <form id="playerForm">
+                        <div class="avatar-section">
+                            <div class="avatar-preview" id="avatarPreview">
+                                <div class="placeholder">
+                                    <i class="bi bi-person-circle"></i>
+                                    <p>No avatar selected</p>
+                                </div>
+                            </div>
+                            <div class="avatar-upload">
+                                <label for="avatarInput" class="btn">
+                                    <i class="bi bi-plus"></i>
+                                </label>
+                                <input type="file" id="avatarInput" accept="image/*">
                             </div>
                         </div>
-                        <div class="avatar-upload">
-                            <label for="avatarInput" class="btn">
-                                <i class="bi bi-plus"></i>
-                            </label>
-                            <input type="file" id="avatarInput" accept="image/*">
+                        <div class="mb-3">
+                            <label for="playerId" class="form-label">Email Address:</label>
+                            <input type="text" class="form-control" id="playerId" required>
                         </div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="playerId" class="form-label">Email Address:</label>
-                        <input type="text" class="form-control" id="playerId" required>
-                        <div class="form-text">This will be the unique ID for the player</div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="playerName" class="form-label">Player Name:</label>
-                        <input type="text" class="form-control" id="playerName" required>
-                        <div class="form-text">Display name for the player</div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="playerPassword" class="form-label">Password:</label>
-                        <input type="password" class="form-control" id="playerPassword" required>
-                        <div class="form-text">Choose a secure password</div>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Create Player</button>
-                </form>
-                <div class="mt-4 text-center">
-                    <button type="button" class="btn btn-outline-primary" id="signInBtn">Sign In</button>
+                        <div class="mb-3">
+                            <label for="playerName" class="form-label">Player Name:</label>
+                            <input type="text" class="form-control" id="playerName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="playerPassword" class="form-label">Password:</label>
+                            <input type="password" class="form-control" id="playerPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Create Player</button>
+                    </form>
+
+                    <!-- Sign In Form -->
+                    <form id="signInForm" class="hidden">
+                        <div class="mb-3">
+                            <label for="signInEmail" class="form-label">Email Address:</label>
+                            <input type="email" class="form-control" id="signInEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="signInPassword" class="form-label">Password:</label>
+                            <input type="password" class="form-control" id="signInPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Sign In</button>
+                    </form>
                 </div>
-            </div>
-        </div>
-        <div class="card" id="returningPlayerCard" style="display: none;">
-            <div class="card-body text-center">
-                <h2 class="card-title">Welcome Back!</h2>
-                <p class="card-text">Sign in to continue your journey.</p>
-                <button onclick="showCreatePlayerCard()" class="btn btn-primary">
-                    <i class="bi bi-arrow-left"></i> Back
-                </button>
             </div>
         </div>
     </div>
@@ -509,106 +609,103 @@
         // Wait for DOM to be fully loaded
         window.addEventListener('load', function() {
             const ACCOUNT_ID = 'ai-test';
-            const signInBtn = document.getElementById('signInBtn');
+            const formToggle = document.getElementById('formToggle');
             const playerForm = document.getElementById('playerForm');
-            const cardHeader = document.querySelector('.card-header h1');
+            const signInForm = document.getElementById('signInForm');
+            const cardTitle = document.getElementById('cardTitle');
+            const signUpLabel = document.getElementById('signUpLabel');
+            const signInLabel = document.getElementById('signInLabel');
             const avatarPreview = document.getElementById('avatarPreview');
+            const formContainer = document.querySelector('.form-container');
 
             // Set random profile image on load
             const randomImage = profileImages[Math.floor(Math.random() * profileImages.length)];
             avatarPreview.innerHTML = `<img src="${randomImage}" alt="Default avatar">`;
             avatarPreview.dataset.currentImage = randomImage;
 
-            // Handle sign in button click
-            if (signInBtn) {
-                signInBtn.addEventListener('click', function() {
-                    // Change view to sign in
-                    cardHeader.textContent = 'Returning Player Sign-In';
-                    playerForm.style.display = 'none';
-                    
-                    // Create sign in form
-                    const signInForm = document.createElement('form');
-                    signInForm.id = 'signInForm';
-                    signInForm.innerHTML = `
-                        <div class="mb-3">
-                            <label for="signInEmail" class="form-label">Email Address:</label>
-                            <input type="email" class="form-control" id="signInEmail" required>
-                            <div class="form-text">Enter your registered email address</div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="signInPassword" class="form-label">Password:</label>
-                            <input type="password" class="form-control" id="signInPassword" required>
-                        </div>
-                        <div class="text-center">
-                            <button type="submit" class="btn btn-primary w-100">Sign In</button>
-                        </div>
-                        <div class="text-center mt-3">
-                            <button type="button" class="btn btn-outline-primary" id="backToSignUp">Create Player</button>
-                        </div>
-                    `;
-                    
-                    // Replace the create account form with sign in form
-                    playerForm.parentNode.insertBefore(signInForm, playerForm.nextSibling);
-                    
-                    // Handle sign in form submission
-                    signInForm.addEventListener('submit', async function(e) {
-                        e.preventDefault();
-                        const email = document.getElementById('signInEmail').value;
-                        const password = document.getElementById('signInPassword').value;
-                        
-                        try {
-                            console.log('Attempting Firebase sign-in for:', email);
-                            // First sign in with Firebase
-                            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                            const user = userCredential.user;
-                            console.log('Firebase sign-in successful');
-                            
-                            // Then verify the GameLayer account exists
-                            console.log('Checking GameLayer account');
-                            const response = await fetch('/api/sign-in', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Authorization': `Bearer ${await user.getIdToken()}`
-                                },
-                                body: JSON.stringify({ uid: user.uid })
-                            });
-
-                            console.log('GameLayer API response status:', response.status);
-                            const data = await response.json();
-                            console.log('GameLayer API response data:', data);
-
-                            if (response.ok && data) {
-                                console.log('Sign-in successful');
-                                window.location.href = '/profile';
-                            } else {
-                                console.log('GameLayer account not found, signing out from Firebase');
-                                // If GameLayer account doesn't exist, sign out from Firebase
-                                await signOut(auth);
-                                alert('Account not found. Please create a new account.');
-                                // Switch back to create account form
-                                cardHeader.textContent = 'Create New Player';
-                                signInForm.remove();
-                                playerForm.style.display = 'block';
-                            }
-                        } catch (error) {
-                            console.error('Sign-in error:', error);
-                            if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-                                alert('Invalid email or password. Please try again.');
-                            } else {
-                                alert(error.message || 'An error occurred. Please try again.');
-                            }
-                        }
-                    });
-
-                    // Handle back to sign up button
-                    document.getElementById('backToSignUp').addEventListener('click', function() {
-                        cardHeader.textContent = 'Create New Player';
-                        signInForm.remove();
-                        playerForm.style.display = 'block';
-                    });
+            // Handle form toggle
+            if (formToggle) {
+                formToggle.addEventListener('change', function() {
+                    if (this.checked) {
+                        // Switch to sign in
+                        playerForm.classList.add('hidden');
+                        signInForm.classList.remove('hidden');
+                        cardTitle.textContent = 'Returning Player Sign-In';
+                        signUpLabel.classList.remove('active');
+                        signInLabel.classList.add('active');
+                        // Update container height
+                        formContainer.style.height = signInForm.offsetHeight + 'px';
+                    } else {
+                        // Switch to sign up
+                        playerForm.classList.remove('hidden');
+                        signInForm.classList.add('hidden');
+                        cardTitle.textContent = 'Create New Player';
+                        signUpLabel.classList.add('active');
+                        signInLabel.classList.remove('active');
+                        // Update container height
+                        formContainer.style.height = playerForm.offsetHeight + 'px';
+                    }
                 });
             }
+
+            // Set initial container height
+            formContainer.style.height = playerForm.offsetHeight + 'px';
+
+            // Handle sign in form submission
+            signInForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const email = document.getElementById('signInEmail').value;
+                const password = document.getElementById('signInPassword').value;
+                
+                try {
+                    console.log('Attempting Firebase sign-in for:', email);
+                    // First sign in with Firebase
+                    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                    const user = userCredential.user;
+                    console.log('Firebase sign-in successful');
+                    
+                    // Then verify the GameLayer account exists
+                    console.log('Checking GameLayer account');
+                    const response = await fetch('/api/sign-in', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${await user.getIdToken()}`
+                        },
+                        body: JSON.stringify({ uid: user.uid })
+                    });
+
+                    console.log('GameLayer API response status:', response.status);
+                    const data = await response.json();
+                    console.log('GameLayer API response data:', data);
+
+                    if (response.ok && data) {
+                        console.log('Sign-in successful');
+                        window.location.href = '/profile';
+                    } else {
+                        console.log('GameLayer account not found, signing out from Firebase');
+                        // If GameLayer account doesn't exist, sign out from Firebase
+                        await signOut(auth);
+                        alert('Account not found. Please create a new account.');
+                        // Switch back to create account form
+                        formToggle.checked = false;
+                        playerForm.classList.remove('hidden');
+                        signInForm.classList.add('hidden');
+                        cardTitle.textContent = 'Create New Player';
+                        signUpLabel.classList.add('active');
+                        signInLabel.classList.remove('active');
+                        // Update container height
+                        formContainer.style.height = playerForm.offsetHeight + 'px';
+                    }
+                } catch (error) {
+                    console.error('Sign-in error:', error);
+                    if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                        alert('Invalid email or password. Please try again.');
+                    } else {
+                        alert(error.message || 'An error occurred. Please try again.');
+                    }
+                }
+            });
 
             // Function to convert SVG to PNG
             async function svgToPng(svgUrl) {

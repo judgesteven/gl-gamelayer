@@ -17,5 +17,8 @@
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.2",
     "node-fetch": "^2.6.9"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
   }
 }
