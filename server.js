@@ -171,7 +171,8 @@ app.post('/api/sign-in', async (req, res) => {
             'api-key': API_KEY
         };
 
-        const apiUrl = `${API_BASE_URL}/players/${uid}`;
+        // First check if player exists in GameLayer
+        const apiUrl = `${API_BASE_URL}/players?player=${uid}&account=${ACCOUNT_ID}`;
         console.log('Making request to GameLayer API:', {
             url: apiUrl,
             headers: {
@@ -180,7 +181,6 @@ app.post('/api/sign-in', async (req, res) => {
             }
         });
 
-        // Check if player exists
         const response = await fetch(apiUrl, {
             method: 'GET',
             headers: headers
