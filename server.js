@@ -236,7 +236,7 @@ app.get('/api/players/:uid', async (req, res) => {
         const { uid } = req.params;
         console.log('Fetching player data for UID:', uid);
 
-        const response = await fetch(`${API_BASE_URL}/players?player=${uid}&account=${ACCOUNT_ID}`, {
+        const response = await fetch(`${API_BASE_URL}/players/${uid}`, {
             method: 'GET',
             headers: {
                 'api-key': API_KEY
@@ -247,7 +247,15 @@ app.get('/api/players/:uid', async (req, res) => {
         console.log('Player data response:', data);
 
         if (response.ok) {
-            res.json(data);
+            // Extract only the required fields
+            const playerData = {
+                imgUrl: data.imgUrl,
+                name: data.name,
+                points: data.points,
+                credits: data.credits,
+                level: data.level
+            };
+            res.json(playerData);
         } else {
             console.error('Error fetching player data:', data);
             res.status(response.status).json(data);
