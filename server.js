@@ -167,7 +167,7 @@ app.post('/api/sign-in', async (req, res) => {
             });
         }
 
-        console.log('Attempting to sign in user with UID:', uid);
+        console.log('Fetching GameLayer player data for Firebase UID:', uid);
 
         const headers = {
             'Content-Type': 'application/json',
@@ -175,9 +175,9 @@ app.post('/api/sign-in', async (req, res) => {
             'api-key': API_KEY
         };
 
-        // Get player data from GameLayer using Firebase UID
-        const playerUrl = `${API_BASE_URL}/players?player=${uid}&account=${ACCOUNT_ID}`;
-        console.log('Fetching player data:', playerUrl);
+        // Use Firebase UID as player-id in GameLayer API call
+        const playerUrl = `${API_BASE_URL}/players/${uid}?account=${ACCOUNT_ID}`;
+        console.log('Making request to GameLayer API:', playerUrl);
 
         const playerResponse = await fetch(playerUrl, {
             method: 'GET',
@@ -185,19 +185,14 @@ app.post('/api/sign-in', async (req, res) => {
         });
 
         const playerData = await playerResponse.json();
-        console.log('Player data response:', {
+        console.log('GameLayer API response:', {
             status: playerResponse.status,
             data: playerData
         });
 
         if (playerResponse.ok) {
-            // Return the first player from the array (should be the current player)
-            const currentPlayer = Array.isArray(playerData) ? playerData[0] : playerData;
-            if (!currentPlayer) {
-                return res.status(404).json({ error: 'Player not found in GameLayer' });
-            }
-            console.log('Returning player data:', currentPlayer);
-            res.status(200).json(currentPlayer);
+            console.log('Returning player data:', playerData);
+            res.status(200).json(playerData);
         } else {
             console.error('Error fetching player data:', playerData);
             res.status(playerResponse.status).json(playerData);
