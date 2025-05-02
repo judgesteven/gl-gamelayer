@@ -363,7 +363,10 @@ app.get('/api/missions/:uid', verifyFirebaseToken, async (req, res) => {
             res.status(200).json(missions);
         } else {
             console.error('Error fetching missions:', missionsData);
-            res.status(missionsResponse.status).json(missionsData);
+            res.status(missionsResponse.status).json({
+                error: missionsData.error || 'Failed to fetch missions',
+                details: missionsData
+            });
         }
     } catch (error) {
         console.error('Server error during missions fetch:', error);
