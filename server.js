@@ -15,6 +15,9 @@ const API_KEY = '9567d1ba99b22b84ee2c27cadb56fde7';
 const ACCOUNT_ID = 'ai-test';
 const API_BASE_URL = 'https://api.gamelayer.co/api/v0';
 
+// Server configuration
+const PORT = process.env.PORT || 3000;
+
 // Configure multer for image upload
 const storage = multer.memoryStorage();
 
