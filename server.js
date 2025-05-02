@@ -165,64 +165,54 @@ app.post('/api/sign-in', async (req, res) => {
 
         console.log('Attempting to sign in user:', { uid, email, name });
 
+        // First verify Firebase authentication
+        if (!firebaseApp) {
+            console.error('Firebase not initialized');
+            return res.status(500).json({ error: 'Authentication service unavailable' });
+        }
+
+        try {
+            // Verify the user exists in Firebase
+            const userRecord = await admin.auth().getUser(uid);
+            console.log('Firebase user verified:', userRecord.uid);
+        } catch (error) {
+            console.error('Firebase authentication error:', error);
+            return res.status(401).json({ error: 'Invalid Firebase user' });
+        }
+
         const headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
             'api-key': API_KEY
         };
 
-        // First check if player exists in GameLayer
-        const checkUrl = `${API_BASE_URL}/players?player=${uid}&account=${ACCOUNT_ID}`;
-        console.log('Checking if player exists:', checkUrl);
+        // Get player data from GameLayer using Firebase UID
+        const playerUrl = `${API_BASE_URL}/players?player=${uid}&account=${ACCOUNT_ID}`;
+        console.log('Fetching player data:', playerUrl);
 
-        const checkResponse = await fetch(checkUrl, {
+        const playerResponse = await fetch(playerUrl, {
             method: 'GET',
             headers: headers
         });
 
-        const checkData = await checkResponse.json();
-        console.log('Player check response:', {
-            status: checkResponse.status,
-            data: checkData
+        const playerData = await playerResponse.json();
+        console.log('Player data response:', {
+            status: playerResponse.status,
+            data: playerData
         });
 
-        let playerData;
-
-        if (checkResponse.status === 404 || !checkData || (Array.isArray(checkData) && checkData.length === 0)) {
-            // Player doesn't exist, create new player
-            console.log('Player not found, creating new player');
-            
-            const createUrl = `${API_BASE_URL}/players`;
-            const createBody = {
-                player: uid,
-                name: name || email.split('@')[0], // Use name if provided, otherwise use email username
-                account: ACCOUNT_ID
-            };
-
-            console.log('Creating new player:', createBody);
-
-            const createResponse = await fetch(createUrl, {
-                method: 'POST',
-                headers: headers,
-                body: JSON.stringify(createBody)
-            });
-
-            playerData = await createResponse.json();
-            console.log('Create player response:', {
-                status: createResponse.status,
-                data: playerData
-            });
-
-            if (!createResponse.ok) {
-                throw new Error(`Failed to create player: ${playerData.error || 'Unknown error'}`);
+        if (playerResponse.ok) {
+            // Return the first player from the array (should be the current player)
+            const currentPlayer = Array.isArray(playerData) ? playerData[0] : playerData;
+            if (!currentPlayer) {
+                return res.status(404).json({ error: 'Player not found in GameLayer' });
             }
+            console.log('Returning player data:', currentPlayer);
+            res.status(200).json(currentPlayer);
         } else {
-            // Player exists, use their data
-            playerData = Array.isArray(checkData) ? checkData[0] : checkData;
-            console.log('Using existing player data:', playerData);
+            console.error('Error fetching player data:', playerData);
+            res.status(playerResponse.status).json(playerData);
         }
-
-        res.status(200).json(playerData);
     } catch (error) {
         console.error('Server error during sign-in:', error);
         res.status(500).json({ 
