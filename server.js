@@ -397,54 +397,56 @@ process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
 
-// Start the server
-const server = app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running at http://localhost:${PORT}`);
-    console.log('Development mode:', process.env.NODE_ENV !== 'production');
-    console.log('Firebase initialized:', !!firebaseApp);
-});
-
-// Keep track of connections
-let activeConnections = 0;
-server.on('connection', (socket) => {
-    activeConnections++;
-    console.log('New connection. Active connections:', activeConnections);
-    
-    socket.on('close', () => {
-        activeConnections--;
-        console.log('Connection closed. Active connections:', activeConnections);
+// Only start the server if we're not in a serverless environment
+if (process.env.NODE_ENV !== 'production' || process.env.VERCEL !== '1') {
+    const server = app.listen(PORT, '0.0.0.0', () => {
+        console.log(`Server running at http://localhost:${PORT}`);
+        console.log('Development mode:', process.env.NODE_ENV !== 'production');
+        console.log('Firebase initialized:', !!firebaseApp);
     });
-});
 
-// Keep the server alive
-function keepAlive() {
-    server.getConnections((err, connections) => {
-        if (err) {
-            console.error('Error getting connections:', err);
-        }
-        console.log(`Active connections: ${connections}`);
+    // Keep track of connections
+    let activeConnections = 0;
+    server.on('connection', (socket) => {
+        activeConnections++;
+        console.log('New connection. Active connections:', activeConnections);
+        
+        socket.on('close', () => {
+            activeConnections--;
+            console.log('Connection closed. Active connections:', activeConnections);
+        });
     });
-    setTimeout(keepAlive, 10000); // Check every 10 seconds
+
+    // Keep the server alive
+    function keepAlive() {
+        server.getConnections((err, connections) => {
+            if (err) {
+                console.error('Error getting connections:', err);
+            }
+            console.log(`Active connections: ${connections}`);
+        });
+        setTimeout(keepAlive, 10000); // Check every 10 seconds
+    }
+
+    keepAlive();
+
+    // Handle server shutdown
+    process.on('SIGTERM', () => {
+        console.log('SIGTERM received. Shutting down gracefully...');
+        server.close(() => {
+            console.log('Server closed');
+            process.exit(0);
+        });
+    });
+
+    process.on('SIGINT', () => {
+        console.log('SIGINT received. Shutting down gracefully...');
+        server.close(() => {
+            console.log('Server closed');
+            process.exit(0);
+        });
+    });
 }
-
-keepAlive();
-
-// Handle server shutdown
-process.on('SIGTERM', () => {
-    console.log('SIGTERM received. Shutting down gracefully...');
-    server.close(() => {
-        console.log('Server closed');
-        process.exit(0);
-    });
-});
-
-process.on('SIGINT', () => {
-    console.log('SIGINT received. Shutting down gracefully...');
-    server.close(() => {
-        console.log('Server closed');
-        process.exit(0);
-    });
-});
 
 // Export the app for Vercel
 module.exports = app; 
