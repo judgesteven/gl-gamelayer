@@ -157,7 +157,7 @@ app.post('/api/players', upload.single('avatar'), async (req, res) => {
 // API endpoint to sign in
 app.post('/api/sign-in', async (req, res) => {
     try {
-        const { uid, email, name } = req.body;
+        const { uid } = req.body;
         
         if (!uid) {
             console.log('Sign-in attempt with no UID provided');
@@ -167,32 +167,7 @@ app.post('/api/sign-in', async (req, res) => {
             });
         }
 
-        console.log('Attempting to sign in user:', { uid, email, name });
-
-        // First verify Firebase authentication
-        if (!firebaseApp) {
-            console.error('Firebase not initialized');
-            return res.status(500).json({ error: 'Authentication service unavailable' });
-        }
-
-        try {
-            // Verify the user exists in Firebase
-            const userRecord = await admin.auth().getUser(uid);
-            console.log('Firebase user verified:', {
-                uid: userRecord.uid,
-                email: userRecord.email,
-                emailVerified: userRecord.emailVerified
-            });
-
-            // Check if email matches
-            if (email && userRecord.email !== email) {
-                console.error('Email mismatch:', { provided: email, actual: userRecord.email });
-                return res.status(401).json({ error: 'Email mismatch' });
-            }
-        } catch (error) {
-            console.error('Firebase authentication error:', error);
-            return res.status(401).json({ error: 'Invalid Firebase user' });
-        }
+        console.log('Attempting to sign in user with UID:', uid);
 
         const headers = {
             'Content-Type': 'application/json',
