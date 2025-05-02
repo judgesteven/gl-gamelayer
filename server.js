@@ -236,26 +236,25 @@ app.get('/api/players/:uid', async (req, res) => {
         const { uid } = req.params;
         console.log('Fetching player data for UID:', uid);
 
-        const response = await fetch(`${API_BASE_URL}/players?player=${uid}&account=${ACCOUNT_ID}`, {
+        const apiUrl = `${API_BASE_URL}/players?player=${uid}&account=${ACCOUNT_ID}`;
+        console.log('Making request to GameLayer API:', apiUrl);
+
+        const response = await fetch(apiUrl, {
             method: 'GET',
             headers: {
-                'api-key': API_KEY
+                'api-key': API_KEY,
+                'Accept': 'application/json'
             }
         });
 
         const data = await response.json();
-        console.log('Player data response:', data);
+        console.log('GameLayer API response:', {
+            status: response.status,
+            data: data
+        });
 
         if (response.ok) {
-            // Extract only the required fields
-            const playerData = {
-                imgUrl: data.imgUrl,
-                name: data.name,
-                points: data.points,
-                credits: data.credits,
-                level: data.level
-            };
-            res.json(playerData);
+            res.json(data);
         } else {
             console.error('Error fetching player data:', data);
             res.status(response.status).json(data);
