@@ -9,6 +9,12 @@ const admin = require('firebase-admin');
 
 // Ignore punycode deprecation warning
 process.removeAllListeners('warning');
+process.on('warning', (warning) => {
+    if (warning.name === 'DeprecationWarning' && warning.message.includes('punycode')) {
+        return;
+    }
+    console.warn(warning);
+});
 
 const app = express();
 const port = process.env.PORT || 3000;
