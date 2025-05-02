@@ -409,6 +409,8 @@
             margin-bottom: 2rem;
             background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
             color: white;
+            padding: 0;
+            overflow: hidden;
         }
         
         .mission-card.priority-1 .mission-name,
@@ -424,24 +426,29 @@
         
         .priority-1-content {
             display: flex;
-            gap: 2rem;
-            align-items: center;
+            align-items: stretch;
+            min-height: 300px;
         }
         
         .priority-1-image {
-            flex: 0 0 300px;
+            flex: 0 0 50%;
+            width: 50%;
         }
         
         .priority-1-image img {
             width: 100%;
-            height: 200px;
+            height: 100%;
             object-fit: cover;
-            border-radius: var(--border-radius);
-            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0;
+            border: none;
         }
         
         .priority-1-details {
             flex: 1;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .priority-2-content {
