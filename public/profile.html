@@ -39,7 +39,7 @@
             if (user) {
                 console.log('User is signed in:', user);
                 try {
-                    // Get player data from GameLayer
+                    // Get player data from GameLayer using Firebase UID
                     const response = await fetch(`/api/players/${user.uid}`, {
                         headers: {
                             'Authorization': `Bearer ${await user.getIdToken()}`
@@ -49,8 +49,8 @@
                     console.log('Player data:', data);
 
                     if (response.ok) {
-                        // Update profile with player data
-                        document.getElementById('playerName').textContent = data.name;
+                        // Update profile with player data from GameLayer
+                        document.getElementById('playerName').textContent = data.name || 'Player';
                         document.getElementById('playerEmail').textContent = user.email;
                         document.getElementById('playerPoints').textContent = data.points || '0';
                         document.getElementById('playerCredits').textContent = data.credits || '0';
