@@ -45,17 +45,25 @@
                     console.log('GameLayer player data:', data);
 
                     if (response.ok) {
+                        // Get the first player from the array (should be the current player)
+                        const playerData = Array.isArray(data) ? data[0] : data;
+                        console.log('Current player data:', playerData);
+
+                        if (!playerData) {
+                            throw new Error('No player data found');
+                        }
+
                         // Display GameLayer player data
-                        document.getElementById('playerName').textContent = data.name;
-                        document.getElementById('playerEmail').textContent = data.email;
-                        document.getElementById('playerPoints').textContent = data.points;
-                        document.getElementById('playerCredits').textContent = data.credits;
+                        document.getElementById('playerName').textContent = playerData.name;
+                        document.getElementById('playerEmail').textContent = playerData.email;
+                        document.getElementById('playerPoints').textContent = playerData.points;
+                        document.getElementById('playerCredits').textContent = playerData.credits;
                         // Handle empty level data
-                        const levelDisplay = data.level && data.level.name ? data.level.name : 
-                                           data.level && data.level.ordinal ? data.level.ordinal : '1';
+                        const levelDisplay = playerData.level && playerData.level.name ? playerData.level.name : 
+                                           playerData.level && playerData.level.ordinal ? playerData.level.ordinal : '1';
                         document.getElementById('playerLevel').textContent = levelDisplay;
-                        if (data.imgUrl) {
-                            document.getElementById('playerAvatar').src = data.imgUrl;
+                        if (playerData.imgUrl) {
+                            document.getElementById('playerAvatar').src = playerData.imgUrl;
                         }
                     } else {
                         throw new Error(data.error || 'Failed to fetch player data from GameLayer');
