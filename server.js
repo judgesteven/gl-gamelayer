@@ -236,6 +236,7 @@ app.get('/api/players/:uid', async (req, res) => {
         const { uid } = req.params;
         console.log('Fetching player data for UID:', uid);
 
+        // Get the currently logged in player from GameLayer
         const apiUrl = `${API_BASE_URL}/players?player=${uid}&account=${ACCOUNT_ID}`;
         console.log('Making request to GameLayer API:', apiUrl);
 
@@ -254,7 +255,12 @@ app.get('/api/players/:uid', async (req, res) => {
         });
 
         if (response.ok) {
-            res.json(data);
+            // Return the first player from the array (should be the current player)
+            const playerData = Array.isArray(data) ? data[0] : data;
+            if (!playerData) {
+                return res.status(404).json({ error: 'Player not found' });
+            }
+            res.json(playerData);
         } else {
             console.error('Error fetching player data:', data);
             res.status(response.status).json(data);
