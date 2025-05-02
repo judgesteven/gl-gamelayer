@@ -398,21 +398,36 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 // Start the server
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running at http://localhost:${PORT}`);
+    console.log('Development mode:', process.env.NODE_ENV !== 'production');
+    console.log('Firebase initialized:', !!firebaseApp);
 });
 
-// Keep the server running
+// Keep track of connections
+let activeConnections = 0;
+server.on('connection', (socket) => {
+    activeConnections++;
+    console.log('New connection. Active connections:', activeConnections);
+    
+    socket.on('close', () => {
+        activeConnections--;
+        console.log('Connection closed. Active connections:', activeConnections);
+    });
+});
+
+// Keep the server alive
 function keepAlive() {
-    const activeConnections = server.connections;
-    console.log(`Active connections: ${activeConnections}`);
+    server.getConnections((err, connections) => {
+        if (err) {
+            console.error('Error getting connections:', err);
+        }
+        console.log(`Active connections: ${connections}`);
+    });
     setTimeout(keepAlive, 10000); // Check every 10 seconds
 }
 
 keepAlive();
-
-// Keep the process alive
-process.stdin.resume();
 
 // Handle server shutdown
 process.on('SIGTERM', () => {
