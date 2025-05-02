@@ -54,7 +54,9 @@
                         document.getElementById('playerEmail').textContent = user.email;
                         document.getElementById('playerPoints').textContent = data.points || '0';
                         document.getElementById('playerCredits').textContent = data.credits || '0';
-                        document.getElementById('playerLevel').textContent = data.level || '1';
+                        // Use level.name if available, otherwise use level.ordinal
+                        const levelDisplay = data.level ? (data.level.name || data.level.ordinal || '1') : '1';
+                        document.getElementById('playerLevel').textContent = levelDisplay;
                         if (data.imgUrl) {
                             document.getElementById('playerAvatar').src = data.imgUrl;
                         }
