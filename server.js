@@ -20,9 +20,9 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // API Configuration
-const API_KEY = '9567d1ba99b22b84ee2c27cadb56fde7';
-const ACCOUNT_ID = 'ai-test';
-const API_BASE_URL = 'https://api.gamelayer.co/api/v0';
+const API_KEY = process.env.GAMELAYER_API_KEY || '9567d1ba99b22b84ee2c27cadb56fde7';
+const ACCOUNT_ID = process.env.GAMELAYER_ACCOUNT_ID || 'ai-test';
+const API_BASE_URL = process.env.GAMELAYER_API_URL || 'https://api.gamelayer.co/api/v0';
 
 // Server configuration
 const PORT = process.env.PORT || 3000;
@@ -58,7 +58,7 @@ try {
     } else {
         firebaseApp = admin.initializeApp({
             credential: admin.credential.cert({
-                projectId: "ai-testing-f3b39",
+                projectId: process.env.FIREBASE_PROJECT_ID || "ai-testing-f3b39",
                 clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
                 privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n')
             })
