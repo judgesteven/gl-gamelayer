@@ -278,11 +278,13 @@ const server = app.listen(port, '0.0.0.0', () => {
 // Handle uncaught exceptions
 process.on('uncaughtException', (error) => {
     console.error('Uncaught Exception:', error);
+    // Don't exit the process
 });
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+    // Don't exit the process
 });
 
 // Handle the punycode deprecation warning
