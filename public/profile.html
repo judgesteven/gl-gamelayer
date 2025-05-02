@@ -52,6 +52,9 @@
                         // Update profile with player data
                         document.getElementById('playerName').textContent = data.name;
                         document.getElementById('playerEmail').textContent = user.email;
+                        document.getElementById('playerPoints').textContent = data.points || '0';
+                        document.getElementById('playerCredits').textContent = data.credits || '0';
+                        document.getElementById('playerLevel').textContent = data.level || '1';
                         if (data.imgUrl) {
                             document.getElementById('playerAvatar').src = data.imgUrl;
                         }
@@ -117,6 +120,28 @@
             color: #6c757d;
             margin-bottom: 1rem;
         }
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+        .stat-item {
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
         .btn-signout {
             background-color: #dc3545;
             color: white;
@@ -137,6 +162,22 @@
             <img id="playerAvatar" src="https://via.placeholder.com/150" alt="Player Avatar" class="profile-avatar">
             <h1 id="playerName" class="profile-name">Loading...</h1>
             <p id="playerEmail" class="profile-email">Loading...</p>
+            
+            <div class="stats-container">
+                <div class="stat-item">
+                    <div id="playerPoints" class="stat-value">0</div>
+                    <div class="stat-label">Points</div>
+                </div>
+                <div class="stat-item">
+                    <div id="playerCredits" class="stat-value">0</div>
+                    <div class="stat-label">Credits</div>
+                </div>
+                <div class="stat-item">
+                    <div id="playerLevel" class="stat-value">1</div>
+                    <div class="stat-label">Level</div>
+                </div>
+            </div>
+
             <button onclick="handleSignOut()" class="btn-signout">Sign Out</button>
         </div>
     </div>
