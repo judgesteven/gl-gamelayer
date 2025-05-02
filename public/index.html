@@ -709,14 +709,8 @@
                         throw new Error(gameLayerData.error || 'Failed to create GameLayer account');
                     }
 
-                    alert('Account created successfully! You can now sign in.');
-                    // Reset form
-                    document.getElementById('playerForm').reset();
-                    // Set new random profile image
-                    const randomImage = profileImages[Math.floor(Math.random() * profileImages.length)];
-                    avatarPreview.innerHTML = `<img src="${randomImage}" alt="Default avatar">`;
-                    avatarPreview.dataset.currentImage = randomImage;
-
+                    // Redirect to profile page immediately
+                    window.location.href = '/profile';
                 } catch (error) {
                     console.error('Error:', error);
                     alert(error.message || 'Error creating account. Please try again.');
