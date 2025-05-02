@@ -40,9 +40,12 @@ app.use('/uploads', express.static('public/uploads'));
 // Initialize Firebase Admin
 let firebaseApp;
 try {
-    const serviceAccount = require('./serviceAccountKey.json');
     firebaseApp = admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
+        credential: admin.credential.cert({
+            projectId: "ai-testing-f3b39",
+            clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+            privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n')
+        })
     });
     console.log('Firebase initialized successfully');
 } catch (error) {
