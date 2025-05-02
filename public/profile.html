@@ -250,9 +250,9 @@
         }
 
         .mission-card.priority-1 {
-            width: 90%;
+            width: 100%;
             margin-bottom: 2rem;
-            margin-left: 5%;
+            margin-left: 0;
             background: linear-gradient(135deg, var(--primary-color) 0%, #0066CC 100%);
             color: white;
             padding: 0;
@@ -265,15 +265,19 @@
         }
 
         .mission-card.priority-2 {
+            width: 45%;
             background: var(--card-bg);
             border-radius: var(--border-radius);
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             transition: var(--transition);
         }
 
-        .mission-card.priority-2:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        .priority-2-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+            width: 100%;
         }
 
         .mission-name {
