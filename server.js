@@ -153,7 +153,7 @@ app.post('/api/players', upload.single('avatar'), async (req, res) => {
 // API endpoint to sign in
 app.post('/api/sign-in', async (req, res) => {
     try {
-        const { uid } = req.body;
+        const { uid, email, name } = req.body;
         
         if (!uid) {
             console.log('Sign-in attempt with no UID provided');
@@ -163,7 +163,7 @@ app.post('/api/sign-in', async (req, res) => {
             });
         }
 
-        console.log('Attempting to sign in user with UID:', uid);
+        console.log('Attempting to sign in user:', { uid, email, name });
 
         const headers = {
             'Content-Type': 'application/json',
@@ -172,45 +172,57 @@ app.post('/api/sign-in', async (req, res) => {
         };
 
         // First check if player exists in GameLayer
-        const apiUrl = `${API_BASE_URL}/players?player=${uid}&account=${ACCOUNT_ID}`;
-        console.log('Making request to GameLayer API:', {
-            url: apiUrl,
-            headers: {
-                ...headers,
-                'api-key': '***'
-            }
-        });
+        const checkUrl = `${API_BASE_URL}/players?player=${uid}&account=${ACCOUNT_ID}`;
+        console.log('Checking if player exists:', checkUrl);
 
-        const response = await fetch(apiUrl, {
+        const checkResponse = await fetch(checkUrl, {
             method: 'GET',
             headers: headers
         });
 
-        console.log('GameLayer API response status:', response.status);
-        const data = await response.json();
-        console.log('GameLayer API response data:', data);
+        const checkData = await checkResponse.json();
+        console.log('Player check response:', {
+            status: checkResponse.status,
+            data: checkData
+        });
 
-        if (!response.ok) {
-            console.error('GameLayer API error:', {
-                status: response.status,
-                statusText: response.statusText,
-                error: data
+        let playerData;
+
+        if (checkResponse.status === 404 || !checkData || (Array.isArray(checkData) && checkData.length === 0)) {
+            // Player doesn't exist, create new player
+            console.log('Player not found, creating new player');
+            
+            const createUrl = `${API_BASE_URL}/players`;
+            const createBody = {
+                player: uid,
+                name: name || email.split('@')[0], // Use name if provided, otherwise use email username
+                account: ACCOUNT_ID
+            };
+
+            console.log('Creating new player:', createBody);
+
+            const createResponse = await fetch(createUrl, {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify(createBody)
             });
-            
-            if (response.status === 404) {
-                console.log('Player not found in GameLayer');
-                return res.status(404).json({
-                    error: "Player not found",
-                    errorCode: 404
-                });
+
+            playerData = await createResponse.json();
+            console.log('Create player response:', {
+                status: createResponse.status,
+                data: playerData
+            });
+
+            if (!createResponse.ok) {
+                throw new Error(`Failed to create player: ${playerData.error || 'Unknown error'}`);
             }
-            
-            return res.status(response.status).json(data);
+        } else {
+            // Player exists, use their data
+            playerData = Array.isArray(checkData) ? checkData[0] : checkData;
+            console.log('Using existing player data:', playerData);
         }
 
-        // If we get here, the player exists
-        console.log('Player found in GameLayer:', data);
-        res.status(200).json(data);
+        res.status(200).json(playerData);
     } catch (error) {
         console.error('Server error during sign-in:', error);
         res.status(500).json({ 
