@@ -69,13 +69,26 @@ try {
 async function verifyFirebaseToken(req, res, next) {
     if (!firebaseApp) {
         console.warn('Firebase not initialized, skipping token verification');
-        // For development, allow requests without Firebase
+        // In production, we'll still try to get the token but won't verify it
+        const authHeader = req.headers.authorization;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            const token = authHeader.split('Bearer ')[1];
+            try {
+                // Just decode the token without verification
+                const decodedToken = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+                req.user = decodedToken;
+                console.log('Token decoded (not verified):', decodedToken);
+            } catch (error) {
+                console.warn('Error decoding token:', error);
+            }
+        }
         next();
         return;
     }
 
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        console.warn('No token provided in request');
         return res.status(401).json({ error: 'No token provided' });
     }
 
